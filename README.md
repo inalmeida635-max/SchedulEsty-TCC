@@ -22,7 +22,8 @@ HTML5, CSS3, JavaScript, PHP, MariaDB, XAMPP e Visual Studio Code (VS Code).
 No momento, a equipe está na fase de programação, desenvolvendo as funcionalidades e a integração com o banco de dados para dar continuidade à implementação do projeto. 
 
 ## Link Protótipo Alta Fidelidade:
-[estetify.html](https://github.com/user-attachments/files/30683562/estetify.html)
+[schedulesty.html](https://github.com/user-attachments/files/32031521/schedulesty.html)
+
 
 ## Link Wiki do Projeto: 
 https://github.com/inalmeida635-max/Estetify-TCC/wiki
