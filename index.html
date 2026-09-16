@@ -268,7 +268,7 @@ h1,h2,h3,h4{font-weight:700;color:var(--texto);}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-  signInWithEmailAndPassword, signOut, sendPasswordResetEmail
+  signInWithEmailAndPassword, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
@@ -298,7 +298,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
-const storage = getStorage(firebaseApp);
+const storage = getStorage(firebaseApp); setPersistence(auth, browserLocalPersistence).catch((err) => { console.warn('[Firebase] Nao foi possivel definir a persistencia de sessao:', err.message); }); console.log('[Firebase] SchedulEsty conectado - projeto:', firebaseConfig.projectId);
 
 /* =====================================================================
    2) ESTADO GLOBAL
@@ -440,7 +440,7 @@ const col = (nome) => collection(db, nome);
 const refDoc = (nome, id) => doc(db, nome, id);
 
 async function buscarDoc(nome, id){
-  const s = await getDoc(refDoc(nome,id));
+  let s; try{ s = await getDoc(refDoc(nome,id)); }catch(err){ console.warn('[Firestore] Falha ao buscar', nome, id, ':', err.code||err.message); return null; }
   return s.exists() ? { id:s.id, ...s.data() } : null;
 }
 async function listarOnde(nome, campo, valor){
