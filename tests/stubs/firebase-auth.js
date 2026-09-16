@@ -26,6 +26,6 @@ export function updatePassword() {
 export function reauthenticateWithCredential() {
   return Promise.reject(new Error('stub: sem rede nos testes de fumaça'));
 }
-export const EmailAuthProvider = {
+export function setPersistence() { return Promise.resolve(); } export const browserLocalPersistence = {}; export const EmailAuthProvider = {
   credential: () => ({}),
 };
