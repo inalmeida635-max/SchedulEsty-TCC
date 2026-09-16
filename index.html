@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchedulEsty</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =====================================================
+   RESET & TOKENS
+===================================================== */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+:root{
+  --rosa:#d875a0;
+  --rosa-escuro:#c65a8a;
+  --rosa-claro:#fff0f6;
+  --fundo:#fff9fb;
+  --roxo:#8b6fd9;
+  --roxo-escuro:#6f56c2;
+  --gradiente:linear-gradient(135deg,#8b6fd9 0%,#d875a0 100%);
+  --texto:#292929;
+  --texto-suave:#6b6b6b;
+  --borda:#f0dce5;
+  --branco:#ffffff;
+  --sucesso:#4caf7d;
+  --sucesso-fundo:#e8f7f0;
+  --alerta:#c98a1f;
+  --alerta-fundo:#fdf3e2;
+  --erro:#d3455c;
+  --erro-fundo:#fdeaee;
+  --sombra:0 5px 20px rgba(0,0,0,.06);
+  --sombra-forte:0 10px 30px rgba(139,111,217,.18);
+  --raio:14px;
+  --raio-sm:10px;
+}
+html,body{background:var(--fundo);color:var(--texto);min-height:100vh;}
+a{color:inherit;}
+button{font:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font:inherit;border:1px solid var(--borda);border-radius:var(--raio-sm);padding:11px 14px;background:var(--branco);color:var(--texto);width:100%;outline:none;transition:.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--rosa);box-shadow:0 0 0 3px rgba(216,117,160,.12);}
+label{display:block;font-size:13px;font-weight:600;color:var(--texto-suave);margin-bottom:6px;}
+.campo{margin-bottom:16px;}
+h1,h2,h3,h4{font-weight:700;color:var(--texto);}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#e6c3d3;border-radius:8px;}
+
+/* =====================================================
+   BOTÕES
+===================================================== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;transition:.2s ease;white-space:nowrap;}
+.btn-primario{background:var(--gradiente);color:#fff;box-shadow:var(--sombra-forte);}
+.btn-primario:hover{transform:translateY(-2px);filter:brightness(1.05);}
+.btn-secundario{background:#fff;color:var(--rosa);border:1px solid var(--borda);}
+.btn-secundario:hover{background:var(--rosa-claro);}
+.btn-perigo{background:var(--erro-fundo);color:var(--erro);}
+.btn-perigo:hover{background:#f9d3da;}
+.btn-texto{color:var(--rosa);font-weight:600;}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:9px;}
+.btn-bloco{width:100%;}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none !important;}
+.icone-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--borda);font-size:16px;position:relative;flex-shrink:0;}
+.icone-btn:hover{background:var(--rosa-claro);}
+.badge-ponto{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--erro);}
+
+/* =====================================================
+   TELAS DE AUTENTICAÇÃO
+===================================================== */
+.tela-auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;background:radial-gradient(circle at 15% 15%,#f4e9fb 0%,var(--fundo) 45%);}
+.cartao-auth{background:#fff;border-radius:22px;box-shadow:var(--sombra-forte);padding:44px;width:100%;max-width:420px;}
+.cartao-auth .marca{text-align:center;margin-bottom:26px;}
+.marca-titulo{font-size:26px;font-weight:800;background:var(--gradiente);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.5px;}
+.marca-sub{font-size:13px;color:var(--texto-suave);margin-top:4px;}
+.cartao-auth h2{font-size:20px;margin-bottom:6px;}
+.cartao-auth p.legenda{font-size:13px;color:var(--texto-suave);margin-bottom:24px;}
+.link-central{text-align:center;margin-top:18px;font-size:13.5px;color:var(--texto-suave);}
+.opcoes-tipo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;}
+.cartao-tipo{border:1.5px solid var(--borda);border-radius:16px;padding:26px 16px;text-align:center;transition:.2s;background:#fff;}
+.cartao-tipo:hover{border-color:var(--rosa);transform:translateY(-3px);box-shadow:var(--sombra);}
+.cartao-tipo .emoji{font-size:34px;display:block;margin-bottom:10px;}
+.cartao-tipo h3{font-size:15px;margin-bottom:4px;}
+.cartao-tipo p{font-size:12px;color:var(--texto-suave);}
+.erro-form{background:var(--erro-fundo);color:var(--erro);padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;}
+.sucesso-form{background:var(--sucesso-fundo);color:var(--sucesso);padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;}
+
+/* =====================================================
+   LAYOUT CLIENTE (header horizontal, como o site original)
+===================================================== */
+.layout-cliente{min-height:100vh;display:flex;flex-direction:column;}
+.header-cliente{height:80px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 6%;box-shadow:0 3px 15px rgba(190,120,150,.06);position:sticky;top:0;z-index:50;}
+.header-cliente nav{display:flex;align-items:center;gap:26px;}
+.header-cliente nav a{text-decoration:none;color:var(--texto-suave);font-size:14px;font-weight:500;padding:8px 2px;border-bottom:2px solid transparent;transition:.2s;}
+.header-cliente nav a:hover,.header-cliente nav a.ativo{color:var(--rosa);border-color:var(--rosa);}
+.header-direita{display:flex;align-items:center;gap:12px;}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--gradiente);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;object-fit:cover;flex-shrink:0;}
+.conteudo-cliente{flex:1;padding:34px 6% 60px;max-width:1200px;margin:0 auto;width:100%;}
+.menu-mobile-toggle{display:none;}
+
+/* =====================================================
+   LAYOUT ADMIN (sidebar + topbar, como as imagens de referência)
+===================================================== */
+.layout-admin{min-height:100vh;display:flex;}
+.sidebar-admin{width:250px;background:#fff;border-right:1px solid var(--borda);padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;flex-shrink:0;transition:.25s;}
+.sidebar-admin .marca-titulo{padding:0 8px 22px;display:block;}
+.nav-admin{display:flex;flex-direction:column;gap:3px;flex:1;overflow-y:auto;}
+.nav-admin a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;text-decoration:none;color:var(--texto-suave);font-size:14px;font-weight:500;}
+.nav-admin a .emoji-nav{font-size:16px;width:20px;text-align:center;}
+.nav-admin a:hover{background:var(--rosa-claro);color:var(--rosa-escuro);}
+.nav-admin a.ativo{background:var(--gradiente);color:#fff;box-shadow:var(--sombra-forte);}
+.nav-admin .grupo-titulo{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#b9b9b9;margin:14px 10px 4px;font-weight:700;}
+.rodape-sidebar{border-top:1px solid var(--borda);padding-top:14px;margin-top:10px;}
+.rodape-sidebar button{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--texto-suave);font-size:14px;}
+.rodape-sidebar button:hover{background:var(--erro-fundo);color:var(--erro);}
+.area-principal{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar-admin{height:78px;background:#fff;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:40;gap:20px;}
+.busca-topbar{flex:1;max-width:380px;position:relative;}
+.busca-topbar input{padding-left:38px;background:var(--fundo);border:1px solid var(--borda);}
+.busca-topbar span{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.5;}
+.topbar-acoes{display:flex;align-items:center;gap:14px;}
+.perfil-topbar{display:flex;align-items:center;gap:10px;padding:6px 10px 6px 6px;border-radius:30px;border:1px solid var(--borda);}
+.perfil-topbar span{font-size:13px;font-weight:600;}
+.conteudo-admin{padding:30px;flex:1;}
+.cabecalho-pagina{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+.cabecalho-pagina .trilha{font-size:12.5px;color:var(--texto-suave);margin-bottom:6px;}
+.cabecalho-pagina .trilha a{color:var(--roxo);text-decoration:none;}
+.cabecalho-pagina h1{font-size:23px;}
+.hamburguer{display:none;}
+
+/* =====================================================
+   CARDS, GRIDS E COMPONENTES GERAIS
+===================================================== */
+.grade-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.grade-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.cartao{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:20px;box-shadow:var(--sombra);}
+.cartao h3{font-size:15px;margin-bottom:4px;}
+.cartao-servico{background:#fff;border:1px solid var(--borda);border-radius:18px;overflow:hidden;box-shadow:var(--sombra);display:flex;flex-direction:column;transition:.2s;}
+.cartao-servico:hover{transform:translateY(-4px);box-shadow:var(--sombra-forte);}
+.capa-servico{height:110px;background:var(--gradiente);display:flex;align-items:center;justify-content:center;font-size:42px;color:#fff;}
+.corpo-servico{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.corpo-servico h3{font-size:16px;}
+.corpo-servico .prof{font-size:12.5px;color:var(--texto-suave);}
+.corpo-servico .desc{font-size:13px;color:var(--texto-suave);line-height:1.5;flex:1;}
+.linha-preco{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.preco{font-size:17px;font-weight:700;color:var(--rosa-escuro);}
+.duracao-pill{font-size:11.5px;background:var(--rosa-claro);color:var(--rosa-escuro);padding:4px 10px;border-radius:20px;font-weight:600;}
+
+.stat-cartao{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:var(--sombra);}
+.stat-icone{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-valor{font-size:24px;font-weight:800;}
+.stat-label{font-size:12.5px;color:var(--texto-suave);}
+
+.tabela-simples{width:100%;border-collapse:collapse;}
+.tabela-simples th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--texto-suave);padding:10px 14px;border-bottom:1px solid var(--borda);}
+.tabela-simples td{padding:14px;border-bottom:1px solid #f5eaf0;font-size:13.5px;vertical-align:middle;}
+.tabela-simples tr:last-child td{border-bottom:none;}
+.pessoa-cel{display:flex;align-items:center;gap:10px;}
+
+.selo{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.selo-pendente{background:var(--alerta-fundo);color:var(--alerta);}
+.selo-confirmado{background:#e6effa;color:#2f6fb0;}
+.selo-concluido{background:var(--sucesso-fundo);color:var(--sucesso);}
+.selo-cancelado{background:var(--erro-fundo);color:var(--erro);}
+.selo-ativa{background:var(--sucesso-fundo);color:var(--sucesso);}
+.selo-agendada{background:var(--alerta-fundo);color:var(--alerta);}
+.selo-encerrada{background:#eee;color:#777;}
+
+.vazio{text-align:center;padding:60px 20px;color:var(--texto-suave);}
+.vazio .emoji-vazio{font-size:40px;display:block;margin-bottom:14px;}
+.vazio h3{color:var(--texto);margin-bottom:6px;font-size:16px;}
+.vazio p{font-size:13.5px;max-width:340px;margin:0 auto;}
+
+.abas{display:flex;gap:6px;border-bottom:1px solid var(--borda);margin-bottom:22px;}
+.abas button{padding:11px 18px;font-size:13.5px;font-weight:600;color:var(--texto-suave);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.abas button.ativa{color:var(--rosa-escuro);border-color:var(--rosa);}
+
+.estrelas{color:#f0b429;letter-spacing:2px;}
+.chip{display:inline-block;padding:4px 11px;border-radius:20px;background:var(--rosa-claro);color:var(--rosa-escuro);font-size:12px;font-weight:600;}
+
+/* =====================================================
+   MENSAGENS (chat)
+===================================================== */
+.tela-mensagens{display:grid;grid-template-columns:320px 1fr;gap:0;background:#fff;border:1px solid var(--borda);border-radius:18px;overflow:hidden;box-shadow:var(--sombra);height:calc(100vh - 220px);min-height:480px;}
+.lista-conversas{border-right:1px solid var(--borda);overflow-y:auto;display:flex;flex-direction:column;}
+.busca-conversas{padding:16px;border-bottom:1px solid var(--borda);}
+.item-conversa{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #f7ebf1;cursor:pointer;transition:.15s;}
+.item-conversa:hover,.item-conversa.ativa{background:var(--rosa-claro);}
+.item-conversa .info{flex:1;min-width:0;}
+.item-conversa .linha1{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;}
+.item-conversa .prev{font-size:12.5px;color:var(--texto-suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-conversa .hora{font-size:11px;color:#b7b7b7;}
+.pill-nao-lida{background:var(--gradiente);color:#fff;font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 7px;}
+.painel-chat{display:flex;flex-direction:column;min-width:0;}
+.chat-cabecalho{padding:16px 22px;border-bottom:1px solid var(--borda);display:flex;align-items:center;gap:12px;}
+.chat-corpo{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:10px;background:#fffcfd;}
+.bolha{max-width:65%;padding:10px 15px;border-radius:16px;font-size:13.5px;line-height:1.4;}
+.bolha-recebida{align-self:flex-start;background:#f1eef8;color:var(--texto);border-bottom-left-radius:4px;}
+.bolha-enviada{align-self:flex-end;background:var(--gradiente);color:#fff;border-bottom-right-radius:4px;}
+.chat-rodape{padding:16px 20px;border-top:1px solid var(--borda);display:flex;gap:12px;}
+.chat-rodape input{border-radius:24px;}
+.sem-chat{flex:1;display:flex;align-items:center;justify-content:center;color:var(--texto-suave);flex-direction:column;gap:10px;}
+
+/* =====================================================
+   FIDELIDADE
+===================================================== */
+.nivel-linha{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-radius:14px;margin-bottom:10px;border:1px solid var(--borda);}
+.nivel-linha.destaque{background:linear-gradient(135deg,#efe9fc,#fdeaf2);border-color:#e6cfe6;}
+.nivel-emoji{font-size:20px;margin-right:12px;}
+.progresso-fundo{background:#f1e3ea;border-radius:20px;height:10px;overflow:hidden;margin:10px 0;}
+.progresso-barra{height:100%;background:var(--gradiente);border-radius:20px;transition:.4s;}
+.ranking-linha{display:flex;align-items:center;gap:12px;padding:11px 6px;border-bottom:1px solid #f5eaf0;}
+.ranking-num{width:26px;height:26px;border-radius:50%;background:var(--rosa-claro);color:var(--rosa-escuro);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+
+/* =====================================================
+   MODAL
+===================================================== */
+.overlay-modal{position:fixed;inset:0;background:rgba(30,20,30,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.caixa-modal{background:#fff;border-radius:20px;padding:30px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.caixa-modal h2{font-size:19px;margin-bottom:18px;}
+.linha-modal-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.linha-modal-topo h2{margin:0;}
+.linha-botoes{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+
+/* =====================================================
+   TOAST
+===================================================== */
+#toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:10px;}
+.toast{background:#fff;border-left:4px solid var(--rosa);box-shadow:var(--sombra-forte);padding:14px 20px;border-radius:12px;font-size:13.5px;min-width:240px;animation:entra .25s ease;}
+.toast.erro{border-color:var(--erro);}
+.toast.sucesso{border-color:var(--sucesso);}
+@keyframes entra{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* =====================================================
+   TELA DE CARREGAMENTO
+===================================================== */
+.tela-loading{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--texto-suave);}
+.spinner{width:38px;height:38px;border-radius:50%;border:4px solid var(--rosa-claro);border-top-color:var(--rosa);animation:girar .7s linear infinite;}
+@keyframes girar{to{transform:rotate(360deg);}}
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+@media(max-width:900px){
+  .sidebar-admin{position:fixed;left:-260px;z-index:150;box-shadow:0 0 40px rgba(0,0,0,.15);}
+  .sidebar-admin.aberta{left:0;}
+  .hamburguer{display:flex;}
+  .grade-2{grid-template-columns:1fr;}
+  .tela-mensagens{grid-template-columns:1fr;height:calc(100vh - 180px);}
+  .lista-conversas{display:none;}
+  .lista-conversas.mostrar{display:flex;}
+  .painel-chat.mostrar{display:none;}
+  .header-cliente nav{display:none;}
+  .opcoes-tipo{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+<div id="modal-root"></div>
+<div id="app"><div class="tela-loading"><div class="spinner"></div><p>Carregando o SchedulEsty...</p></div></div>
+
+<script type="module">
+/* =====================================================================
+   SCHEDULESTY — aplicação única (SPA) sobre Firebase
+   Auth + Firestore + Storage. Tudo roda neste único arquivo index.html.
+===================================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, signOut, sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
+  getDoc, getDocs, query, where, orderBy, onSnapshot, serverTimestamp,
+  Timestamp, increment
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+/* =====================================================================
+   1) CONFIGURAÇÃO DO FIREBASE
+   -----------------------------------------------------------------
+   Troque os valores abaixo pelos do SEU projeto:
+   Console do Firebase > Configurações do projeto > Geral >
+   "Seus apps" > app Web > SDK do Firebase (Config).
+===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBCS4dZjk64Klwsj5mwMgc2MIJ_RZQ1Ogs",
+  authDomain: "schedulesty-1328e.firebaseapp.com",
+  projectId: "schedulesty-1328e",
+  storageBucket: "schedulesty-1328e.firebasestorage.app",
+  messagingSenderId: "1068046153206",
+  appId: "1:1068046153206:web:3745881a9bbde937cec3d7"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
+
+/* =====================================================================
+   2) ESTADO GLOBAL
+===================================================================== */
+const estado = {
+  user: null,          // usuário do Firebase Auth
+  perfil: null,         // documento usuarios/{uid}
+  categorias: [],        // cache simples de categorias
+  assinaturas: [],        // unsubscribes (onSnapshot) da rota atual
+  agendarSelecao: null,    // horário escolhido no fluxo de agendar
+  sidebarAberta: false,
+};
+
+function limparAssinaturas(){
+  estado.assinaturas.forEach(fn => { try{ fn(); }catch(e){} });
+  estado.assinaturas = [];
+}
+
+/* =====================================================================
+   3) HELPERS GERAIS
+===================================================================== */
+const appEl = () => document.getElementById('app');
+const $  = (sel, ctx=document) => ctx.querySelector(sel);
+const $$ = (sel, ctx=document) => [...ctx.querySelectorAll(sel)];
+
+function esc(v){
+  if (v === null || v === undefined) return '';
+  return String(v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function iniciais(nome){
+  if(!nome) return '?';
+  const p = nome.trim().split(/\s+/);
+  return ((p[0]?.[0]||'') + (p[1]?.[0]||'')).toUpperCase();
+}
+function formatBRL(v){
+  return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+function formatDataBR(iso){
+  if(!iso) return '—';
+  const [a,m,d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+function formatDataHoraBR(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function horaCurta(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+const DIAS_SEMANA = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'];
+const DIAS_SEMANA_LABEL = {domingo:'Domingo',segunda:'Segunda-feira',terca:'Terça-feira',quarta:'Quarta-feira',quinta:'Quinta-feira',sexta:'Sexta-feira',sabado:'Sábado'};
+function diaSemanaDe(dataISO){
+  const [a,m,d] = dataISO.split('-').map(Number);
+  return DIAS_SEMANA[new Date(a, m-1, d).getDay()];
+}
+function hojeISO(){ return new Date().toISOString().slice(0,10); }
+function minParaHora(min){
+  const h = Math.floor(min/60).toString().padStart(2,'0');
+  const m = (min%60).toString().padStart(2,'0');
+  return `${h}:${m}`;
+}
+function horaParaMin(hhmm){
+  const [h,m] = hhmm.split(':').map(Number);
+  return h*60+m;
+}
+function nivelAtual(pontos, niveis){
+  return niveis.find(n => pontos >= n.pontosMin && pontos <= n.pontosMax) || niveis[niveis.length-1];
+}
+
+
+function redimensionarImagemParaBase64(arquivo, maxLado = 300, qualidade = 0.7){
+  return new Promise((resolve, reject)=>{
+    const leitor = new FileReader();
+    leitor.onerror = () => reject(new Error('Não foi possível ler o arquivo.'));
+    leitor.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Arquivo não é uma imagem válida.'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxLado){ height = Math.round(height * maxLado / width); width = maxLado; }
+        else if (height > maxLado){ width = Math.round(width * maxLado / height); height = maxLado; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', qualidade));
+      };
+      img.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+function toast(msg, tipo=''){
+  const box = document.createElement('div');
+  box.className = `toast ${tipo}`;
+  box.textContent = msg;
+  document.getElementById('toast-container').appendChild(box);
+  setTimeout(()=> box.remove(), 3800);
+}
+function abrirModal(html){
+  document.getElementById('modal-root').innerHTML =
+    `<div class="overlay-modal" data-fechar-modal><div class="caixa-modal">${html}</div></div>`;
+  $('.overlay-modal').addEventListener('click', (e)=>{ if(e.target.dataset.fecharModal !== undefined && e.target.classList.contains('overlay-modal')) fecharModal(); });
+}
+function fecharModal(){ document.getElementById('modal-root').innerHTML = ''; }
+function confirmarAcao(mensagem){
+  return new Promise(resolve=>{
+    abrirModal(`
+      <h2>Confirmar ação</h2>
+      <p style="font-size:14px;color:var(--texto-suave);line-height:1.5;">${esc(mensagem)}</p>
+      <div class="linha-botoes">
+        <button class="btn btn-secundario" id="btn-modal-nao">Cancelar</button>
+        <button class="btn btn-perigo" id="btn-modal-sim">Confirmar</button>
+      </div>`);
+    $('#btn-modal-nao').onclick = ()=>{ fecharModal(); resolve(false); };
+    $('#btn-modal-sim').onclick = ()=>{ fecharModal(); resolve(true); };
+  });
+}
+function erroFirebase(err){
+  const m = {
+    'auth/email-already-in-use': 'Esse e-mail já está cadastrado.',
+    'auth/invalid-email': 'E-mail inválido.',
+    'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+    'auth/invalid-credential': 'E-mail ou senha incorretos.',
+    'auth/wrong-password': 'E-mail ou senha incorretos.',
+    'auth/user-not-found': 'Não encontramos uma conta com esse e-mail.',
+    'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco e tente de novo.',
+  };
+  return m[err?.code] || err?.message || 'Algo deu errado. Tente novamente.';
+}
+
+/* =====================================================================
+   4) HELPERS DE FIRESTORE
+===================================================================== */
+const col = (nome) => collection(db, nome);
+const refDoc = (nome, id) => doc(db, nome, id);
+
+async function buscarDoc(nome, id){
+  const s = await getDoc(refDoc(nome,id));
+  return s.exists() ? { id:s.id, ...s.data() } : null;
+}
+async function listarOnde(nome, campo, valor){
+  const q = query(col(nome), where(campo,'==',valor));
+  const s = await getDocs(q);
+  return s.docs.map(d=>({id:d.id, ...d.data()}));
+}
+async function listarTudo(nome){
+  const s = await getDocs(col(nome));
+  return s.docs.map(d=>({id:d.id, ...d.data()}));
+}
+const cacheUsuarios = new Map();
+async function buscarUsuarioCache(uid){
+  if(!uid) return null;
+  if(cacheUsuarios.has(uid)) return cacheUsuarios.get(uid);
+  const u = await buscarDoc('usuarios', uid);
+  cacheUsuarios.set(uid, u);
+  return u;
+}
+
+/* =====================================================================
+   5) ROTEADOR
+===================================================================== */
+window.addEventListener('hashchange', aplicarRota);
+
+function aplicarRota(){
+  fecharModal();
+  limparAssinaturas();
+  const hash = location.hash.replace(/^#/, '') || '/';
+
+  if (!estado.user){
+    if (hash === '/entrar-cliente') return renderLogin('cliente');
+    if (hash === '/entrar-admin') return renderLogin('admin');
+    if (hash === '/recuperar-senha') return renderRecuperarSenha();
+    if (hash.startsWith('/cadastro/cliente')) return renderCadastro('cliente');
+    if (hash.startsWith('/cadastro/admin')) return renderCadastro('admin');
+    return renderEscolha();
+  }
+
+  // já autenticado
+  if (['/', '', '/entrar-cliente','/entrar-admin','/recuperar-senha'].includes(hash) || hash.startsWith('/cadastro')) {
+    location.hash = estado.perfil?.tipo === 'admin' ? '#/a/inicio' : '#/c/inicio';
+    return;
+  }
+
+  if (estado.perfil?.tipo === 'cliente'){
+    if (!hash.startsWith('/c/')) { location.hash = '#/c/inicio'; return; }
+    return renderCliente(hash);
+  } else {
+    if (!hash.startsWith('/a/')) { location.hash = '#/a/inicio'; return; }
+    return renderAdmin(hash);
+  }
+}
+
+/* =====================================================================
+   6) AUTENTICAÇÃO
+===================================================================== */
+onAuthStateChanged(auth, async (user) => {
+  estado.user = user;
+  if (user){
+    estado.perfil = await buscarDoc('usuarios', user.uid);
+    if (!estado.perfil){
+      // conta órfã (sem doc) — desloga por segurança
+      await signOut(auth);
+      estado.user = null; estado.perfil = null;
+    }
+  } else {
+    estado.perfil = null;
+  }
+  aplicarRota();
+});
+
+async function fazerCadastro({ tipo, nome, email, senha, telefone, especialidade }){
+  const cred = await createUserWithEmailAndPassword(auth, email, senha);
+  const uid = cred.user.uid;
+  const dadosBase = {
+    nome, email, tipo,
+    foto: null,
+    dataCadastro: serverTimestamp(),
+  };
+  if (tipo === 'cliente'){
+    Object.assign(dadosBase, { telefone: telefone||null, dataNascimento:null, cpf:null, pontosFidelidade:0 });
+  } else {
+    Object.assign(dadosBase, { especialidade: especialidade||'Não informada', telefone: telefone||null, ativo:true });
+  }
+  await setDoc(refDoc('usuarios', uid), dadosBase);
+  if (tipo === 'admin'){
+    await setDoc(refDoc('fidelidadeConfig', uid), {
+      pontosPorReal: 1,
+      niveis: [
+        { nome:'Bronze', pontosMin:0, pontosMax:299, beneficio:'5% de desconto' },
+        { nome:'Prata', pontosMin:300, pontosMax:699, beneficio:'10% de desconto + brinde' },
+        { nome:'Ouro', pontosMin:700, pontosMax:1499, beneficio:'15% + serviço grátis' },
+        { nome:'Diamante', pontosMin:1500, pontosMax:9999, beneficio:'20% + prioridade + mimo' },
+      ]
+    });
+  }
+}
+
+/* =====================================================================
+   7) TELAS PÚBLICAS (login / cadastro / recuperação)
+===================================================================== */
+function renderEscolha(){
+  appEl().innerHTML = `
+  <div class="tela-auth">
+    <div class="cartao-auth" style="max-width:560px;">
+      <div class="marca"><div class="marca-titulo">SchedulEsty</div><div class="marca-sub">Agendamentos de estética, do jeito simples</div></div>
+      <h2 style="text-align:center;">Como você quer entrar?</h2>
+      <p class="legenda" style="text-align:center;">Escolha o tipo de acesso para continuar</p>
+      <div class="opcoes-tipo">
+        <a class="cartao-tipo" href="#/entrar-cliente"><span class="emoji">👤</span><h3>Sou cliente</h3><p>Buscar serviços e agendar horários</p></a>
+        <a class="cartao-tipo" href="#/entrar-admin"><span class="emoji">💼</span><h3>Sou profissional</h3><p>Gerenciar minha agenda e clientes</p></a>
+      </div>
+      <p class="link-central">Ainda não tem conta?
+        <a href="#/cadastro/cliente" class="btn-texto">Cadastre-se como cliente</a> ·
+        <a href="#/cadastro/admin" class="btn-texto">como profissional</a>
+      </p>
+    </div>
+  </div>`;
+}
+
+function renderLogin(tipo){
+  const titulo = tipo === 'cliente' ? 'Entrar como cliente' : 'Entrar como profissional';
+  appEl().innerHTML = `
+  <div class="tela-auth">
+    <div class="cartao-auth">
+      <div class="marca"><div class="marca-titulo">SchedulEsty</div></div>
+      <h2>${titulo}</h2>
+      <p class="legenda">Informe seus dados para continuar</p>
+      <div id="erro-login"></div>
+      <form data-form="login" data-tipo="${tipo}">
+        <div class="campo"><label>E-mail</label><input type="email" name="email" required autocomplete="email"></div>
+        <div class="campo"><label>Senha</label><input type="password" name="senha" required autocomplete="current-password"></div>
+        <button class="btn btn-primario btn-bloco" type="submit">Entrar</button>
+      </form>
+      <p class="link-central"><a href="#/recuperar-senha" class="btn-texto">Esqueci minha senha</a></p>
+      <p class="link-central">Não tem conta? <a href="#/cadastro/${tipo}" class="btn-texto">Cadastre-se</a></p>
+      <p class="link-central"><a href="#/">← Voltar</a></p>
+    </div>
+  </div>`;
+}
+
+function renderCadastro(tipo){
+  const titulo = tipo === 'cliente' ? 'Criar conta de cliente' : 'Criar conta de profissional';
+  appEl().innerHTML = `
+  <div class="tela-auth">
+    <div class="cartao-auth">
+      <div class="marca"><div class="marca-titulo">SchedulEsty</div></div>
+      <h2>${titulo}</h2>
+      <p class="legenda">Leva menos de um minuto</p>
+      <div id="erro-cadastro"></div>
+      <form data-form="cadastro" data-tipo="${tipo}">
+        <div class="campo"><label>Nome completo</label><input type="text" name="nome" required></div>
+        <div class="campo"><label>E-mail</label><input type="email" name="email" required></div>
+        ${tipo === 'admin' ? `<div class="campo"><label>Especialidade</label><input type="text" name="especialidade" placeholder="Ex: Esteticista, Manicure..."></div>` : `<div class="campo"><label>Telefone (opcional)</label><input type="tel" name="telefone" placeholder="(00) 00000-0000"></div>`}
+        <div class="campo"><label>Senha</label><input type="password" name="senha" required minlength="6"></div>
+        <div class="campo"><label>Confirmar senha</label><input type="password" name="confirmarSenha" required minlength="6"></div>
+        <button class="btn btn-primario btn-bloco" type="submit">Criar conta</button>
+      </form>
+      <p class="link-central">Já tem conta? <a href="#/entrar-${tipo}" class="btn-texto">Entrar</a></p>
+      <p class="link-central"><a href="#/">← Voltar</a></p>
+    </div>
+  </div>`;
+}
+
+function renderRecuperarSenha(){
+  appEl().innerHTML = `
+  <div class="tela-auth">
+    <div class="cartao-auth">
+      <div class="marca"><div class="marca-titulo">SchedulEsty</div></div>
+      <h2>Recuperar senha</h2>
+      <p class="legenda">Enviaremos um link de redefinição para o seu e-mail</p>
+      <div id="erro-recuperar"></div>
+      <form data-form="recuperar-senha">
+        <div class="campo"><label>E-mail</label><input type="email" name="email" required></div>
+        <button class="btn btn-primario btn-bloco" type="submit">Enviar link</button>
+      </form>
+      <p class="link-central"><a href="#/">← Voltar</a></p>
+    </div>
+  </div>`;
+}
+
+/* =====================================================================
+   8) LAYOUTS (cliente e admin)
+===================================================================== */
+function linksClienteNav(rotaAtual){
+  const itens = [
+    ['/c/inicio','Explorar'],
+    ['/c/agendamentos','Meus agendamentos'],
+    ['/c/historico','Histórico'],
+    ['/c/mensagens','Mensagens'],
+    ['/c/fidelidade','Fidelidade'],
+    ['/c/perfil','Meu perfil'],
+  ];
+  return itens.map(([r,l])=>`<a href="#${r}" class="${rotaAtual.startsWith(r)?'ativo':''}">${l}</a>`).join('');
+}
+
+function layoutCliente(conteudoHtml, rotaAtual){
+  const p = estado.perfil || {};
+  return `
+  <div class="layout-cliente">
+    <header class="header-cliente">
+      <a href="#/c/inicio" class="marca-titulo" style="font-size:20px;text-decoration:none;">SchedulEsty</a>
+      <nav>${linksClienteNav(rotaAtual)}</nav>
+      <div class="header-direita">
+        ${p.foto ? `<img src="${esc(p.foto)}" class="avatar" style="object-fit:cover;">` : `<div class="avatar">${iniciais(p.nome)}</div>`}
+        <button class="icone-btn" data-action="sair" title="Sair">↪</button>
+      </div>
+    </header>
+    <div class="conteudo-cliente">${conteudoHtml}</div>
+  </div>`;
+}
+
+function linksAdminNav(rotaAtual){
+  const grupos = [
+    { titulo:null, itens:[['/a/inicio','🏠','Início']] },
+    { titulo:'Agenda', itens:[['/a/agenda','📅','Agenda'],['/a/agendamentos','🗓️','Agendamentos'],['/a/historico','🕘','Histórico']] },
+    { titulo:'Gestão', itens:[['/a/servicos','💅','Serviços'],['/a/disponibilidade','⏰','Disponibilidade'],['/a/feedbacks','⭐','Feedbacks']] },
+    { titulo:'Comunicação', itens:[['/a/mensagens','💬','Mensagens'],['/a/campanhas','📣','Campanhas']] },
+    { titulo:'Extras', itens:[['/a/fidelidade','🎁','Fidelidade'],['/a/perfil','⚙️','Perfil']] },
+  ];
+  return grupos.map(g => `
+    ${g.titulo ? `<div class="grupo-titulo">${g.titulo}</div>` : ''}
+    ${g.itens.map(([r,ic,l])=>`<a href="#${r}" class="${rotaAtual.startsWith(r)?'ativo':''}"><span class="emoji-nav">${ic}</span>${l}</a>`).join('')}
+  `).join('');
+}
+
+function layoutAdmin(conteudoHtml, rotaAtual){
+  const p = estado.perfil || {};
+  return `
+  <div class="layout-admin">
+    <aside class="sidebar-admin ${estado.sidebarAberta?'aberta':''}" id="sidebar-admin">
+      <span class="marca-titulo">SchedulEsty</span>
+      <nav class="nav-admin">${linksAdminNav(rotaAtual)}</nav>
+      <div class="rodape-sidebar"><button data-action="sair">↪ Sair</button></div>
+    </aside>
+    <div class="area-principal">
+      <header class="topbar-admin">
+        <button class="icone-btn hamburguer" data-action="toggle-sidebar">☰</button>
+        <div class="busca-topbar"><span>🔍</span><input id="busca-global" placeholder="Buscar nesta página..."></div>
+        <div class="topbar-acoes">
+          <a href="#/a/mensagens" class="icone-btn" title="Mensagens">💬</a>
+          <div class="perfil-topbar">
+            ${p.foto ? `<img src="${esc(p.foto)}" class="avatar" style="width:30px;height:30px;object-fit:cover;">` : `<div class="avatar" style="width:30px;height:30px;font-size:12px;">${iniciais(p.nome)}</div>`}
+            <span>${esc(p.nome||'')}</span>
+          </div>
+        </div>
+      </header>
+      <main class="conteudo-admin">${conteudoHtml}</main>
+    </div>
+  </div>`;
+}
+function cabecalhoPagina(trilha, titulo, extraHtml=''){
+  return `<div class="cabecalho-pagina">
+    <div><div class="trilha">${trilha}</div><h1>${titulo}</h1></div>
+    <div>${extraHtml}</div>
+  </div>`;
+}
+
+/* liga a busca simples do topbar/paginas: filtra elementos [data-buscavel] */
+function ligarBuscaSimples(seletorInput){
+  const input = $(seletorInput);
+  if(!input) return;
+  input.addEventListener('input', ()=>{
+    const termo = input.value.trim().toLowerCase();
+    $$('[data-buscavel]').forEach(elItem=>{
+      const alvo = elItem.dataset.buscavel.toLowerCase();
+      elItem.style.display = alvo.includes(termo) ? '' : 'none';
+    });
+  });
+}
+
+/* =====================================================================
+   9) ROTEADOR DE ÁREA (cliente / admin)
+===================================================================== */
+function renderCliente(hash){
+  const partes = hash.split('/').filter(Boolean);
+  if (hash === '/c/inicio') return viewClienteInicio();
+  if (hash.startsWith('/c/agendar/')) return viewClienteAgendar(partes[2]);
+  if (hash === '/c/agendamentos') return viewClienteAgendamentos();
+  if (hash === '/c/historico') return viewClienteHistorico();
+  if (hash === '/c/perfil') return viewClientePerfil();
+  if (hash === '/c/mensagens') return viewMensagens('cliente', null);
+  if (hash.startsWith('/c/mensagens/')) return viewMensagens('cliente', partes[2]);
+  if (hash === '/c/fidelidade') return viewClienteFidelidade();
+  location.hash = '#/c/inicio';
+}
+function renderAdmin(hash){
+  const partes = hash.split('/').filter(Boolean);
+  if (hash === '/a/inicio') return viewAdminInicio();
+  if (hash === '/a/agenda') return viewAdminAgenda();
+  if (hash === '/a/agendamentos') return viewAdminAgendamentos();
+  if (hash === '/a/servicos') return viewAdminServicos();
+  if (hash === '/a/disponibilidade') return viewAdminDisponibilidade();
+  if (hash === '/a/historico') return viewAdminHistorico();
+  if (hash === '/a/feedbacks') return viewAdminFeedbacks();
+  if (hash === '/a/perfil') return viewAdminPerfil();
+  if (hash === '/a/mensagens') return viewMensagens('admin', null);
+  if (hash.startsWith('/a/mensagens/')) return viewMensagens('admin', partes[2]);
+  if (hash === '/a/campanhas') return viewAdminCampanhas();
+  if (hash === '/a/fidelidade') return viewAdminFidelidade();
+  location.hash = '#/a/inicio';
+}
+
+/* =====================================================================
+   10) TELAS DO CLIENTE
+===================================================================== */
+async function viewClienteInicio(){
+  appEl().innerHTML = layoutCliente(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/c/inicio');
+  const [servicos, categorias, profissionais] = await Promise.all([
+    listarOnde('servicos','ativo', true),
+    listarTudo('categorias'),
+    listarOnde('usuarios','tipo','admin'),
+  ]);
+  const mapaProf = new Map(profissionais.map(p=>[p.id,p]));
+  const mapaCat = new Map(categorias.map(c=>[c.id,c.nome]));
+
+  const cartoes = servicos.map(s=>{
+    const prof = mapaProf.get(s.idProfissional);
+    const imgOk = s.imagem && /^https?:\/\//.test(s.imagem);
+    return `<a href="#/c/agendar/${s.id}" class="cartao-servico" style="text-decoration:none;" data-buscavel="${esc(s.nome)} ${esc(prof?.nome||'')} ${esc(mapaCat.get(s.idCategoria)||'')}">
+      <div class="capa-servico" ${imgOk?`style="background-image:url('${esc(s.imagem)}');background-size:cover;background-position:center;"`:''}>${imgOk?'':(esc(s.imagem)||'💅')}</div>
+      <div class="corpo-servico">
+        <h3>${esc(s.nome)}</h3>
+        <div class="prof">com ${esc(prof?.nome || 'profissional')}</div>
+        <div class="desc">${esc(s.descricao||'')}</div>
+        <div class="linha-preco"><span class="preco">${formatBRL(s.preco)}</span><span class="duracao-pill">${s.duracao||0} min</span></div>
+      </div>
+    </a>`;
+  }).join('');
+
+  appEl().innerHTML = layoutCliente(`
+    ${cabecalhoPagina('Explorar', 'Encontre seu próximo horário')}
+    <div class="campo" style="max-width:420px;"><input id="busca-global" placeholder="Buscar serviço, profissional ou categoria..."></div>
+    <div class="grade-cards" style="margin-top:16px;">${cartoes || `<div class="vazio" style="grid-column:1/-1;"><span class="emoji-vazio">🗓️</span><h3>Nenhum serviço disponível ainda</h3><p>Volte em breve — novos serviços aparecem aqui assim que os profissionais cadastrarem.</p></div>`}</div>
+  `, '/c/inicio');
+  ligarBuscaSimples('#busca-global');
+}
+
+async function viewClienteAgendar(servicoId){
+  appEl().innerHTML = layoutCliente(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/c/agendar');
+  const servico = await buscarDoc('servicos', servicoId);
+  if (!servico){ appEl().innerHTML = layoutCliente(`<div class="vazio"><h3>Serviço não encontrado</h3><a href="#/c/inicio" class="btn btn-primario" style="margin-top:12px;">Voltar</a></div>`, '/c/inicio'); return; }
+  const prof = await buscarUsuarioCache(servico.idProfissional);
+  estado.agendarSelecao = null;
+
+  async function montarSlots(dataEscolhida){
+    const dia = diaSemanaDe(dataEscolhida);
+    const disponibilidades = await listarOnde('disponibilidade','idProfissional', servico.idProfissional);
+    const doDia = disponibilidades.filter(d => d.diaSemana === dia && d.ativo);
+    if (doDia.length === 0) return { slots: [], semAtendimento: true };
+
+    const todosAgendamentos = await listarOnde('agendamentos','idProfissional', servico.idProfissional);
+    const ocupados = new Set(todosAgendamentos.filter(a => a.data === dataEscolhida && a.status !== 'Cancelado').map(a => a.horario));
+
+    const duracao = Number(servico.duracao) || 30;
+    let slots = [];
+    doDia.forEach(bloco=>{
+      const ini = horaParaMin(bloco.horarioInicio), fim = horaParaMin(bloco.horarioFim);
+      for (let m = ini; m + duracao <= fim; m += duracao){
+        const hhmm = minParaHora(m);
+        if (!ocupados.has(hhmm)) slots.push(hhmm);
+      }
+    });
+    return { slots, semAtendimento: false };
+  }
+
+  async function desenhar(dataEscolhida){
+    const { slots, semAtendimento } = await montarSlots(dataEscolhida);
+    const htmlSlots = semAtendimento
+      ? `<p style="font-size:13.5px;color:var(--texto-suave);margin-top:10px;">Este profissional não atende ${DIAS_SEMANA_LABEL[diaSemanaDe(dataEscolhida)].toLowerCase()}.</p>`
+      : (slots.length
+          ? `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">${slots.map(h=>`<button type="button" class="btn btn-sm ${estado.agendarSelecao===h?'btn-primario':'btn-secundario'}" data-action="escolher-horario" data-hora="${h}">${h}</button>`).join('')}</div>`
+          : `<p style="font-size:13.5px;color:var(--texto-suave);margin-top:10px;">Sem horários livres nesta data.</p>`);
+
+    const imgOk = servico.imagem && /^https?:\/\//.test(servico.imagem);
+    appEl().innerHTML = layoutCliente(`
+      <a href="#/c/inicio" class="btn btn-secundario btn-sm" style="margin-bottom:20px;">← Voltar</a>
+      <div class="grade-2">
+        <div class="cartao">
+          <div class="capa-servico" style="border-radius:12px;margin-bottom:14px;${imgOk?`background-image:url('${esc(servico.imagem)}');background-size:cover;background-position:center;`:''}">${imgOk?'':(esc(servico.imagem)||'💅')}</div>
+          <h2 style="margin-bottom:6px;">${esc(servico.nome)}</h2>
+          <p style="color:var(--texto-suave);font-size:13.5px;margin-bottom:12px;">${esc(servico.descricao||'')}</p>
+          <p style="font-size:13px;margin-bottom:4px;"><b>Profissional:</b> ${esc(prof?.nome||'—')}</p>
+          <p style="font-size:13px;margin-bottom:4px;"><b>Duração:</b> ${servico.duracao} min</p>
+          <p style="font-size:18px;font-weight:700;color:var(--rosa-escuro);margin-top:10px;">${formatBRL(servico.preco)}</p>
+          <a href="#/c/mensagens/${servico.idProfissional}" class="btn-texto" style="font-size:13px;display:inline-block;margin-top:10px;">💬 Enviar mensagem ao profissional</a>
+        </div>
+        <div class="cartao">
+          <h3 style="margin-bottom:14px;">Escolha data e horário</h3>
+          <div class="campo"><label>Data</label><input type="date" id="input-data-agendar" min="${hojeISO()}" value="${dataEscolhida}"></div>
+          <div id="slots-agendar">${htmlSlots}</div>
+          <div class="campo" style="margin-top:16px;"><label>Observações (opcional)</label><textarea id="obs-agendar" rows="2" placeholder="Alguma preferência ou informação extra?"></textarea></div>
+          <button class="btn btn-primario btn-bloco" style="margin-top:10px;" data-action="confirmar-agendamento-novo" data-servico="${servico.id}">Confirmar agendamento</button>
+        </div>
+      </div>
+    `, '/c/agendar');
+    $('#input-data-agendar').addEventListener('change', (e)=>{ estado.agendarSelecao = null; desenhar(e.target.value); });
+  }
+  estado.redesenharAgendar = desenhar;
+  await desenhar(hojeISO());
+}
+
+async function viewClienteAgendamentos(){
+  appEl().innerHTML = layoutCliente(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/c/agendamentos');
+  const todos = await listarOnde('agendamentos','idCliente', estado.user.uid);
+  const ativos = todos.filter(a=>['Pendente','Confirmado'].includes(a.status)).sort((a,b)=>(a.data+a.horario).localeCompare(b.data+b.horario));
+  const linhas = await Promise.all(ativos.map(async a=>{
+    const [servico, prof] = await Promise.all([buscarDoc('servicos', a.idServico), buscarUsuarioCache(a.idProfissional)]);
+    return `<tr>
+      <td class="pessoa-cel">${prof?.foto?`<img src="${esc(prof.foto)}" class="avatar" style="width:32px;height:32px;">`:`<div class="avatar" style="width:32px;height:32px;font-size:12px;">${iniciais(prof?.nome)}</div>`}<div><b>${esc(prof?.nome||'—')}</b><br><small style="color:var(--texto-suave);">${esc(servico?.nome||'')}</small></div></td>
+      <td>${formatDataBR(a.data)}<br><small>${a.horario}</small></td>
+      <td><span class="selo selo-${a.status==='Pendente'?'pendente':'confirmado'}">${a.status}</span></td>
+      <td><button class="btn btn-sm btn-perigo" data-action="cliente-cancelar-agendamento" data-id="${a.id}">Cancelar</button></td>
+    </tr>`;
+  }));
+  appEl().innerHTML = layoutCliente(`
+    ${cabecalhoPagina('Meus agendamentos', 'Próximos horários')}
+    ${ativos.length ? `<div class="cartao" style="padding:0;overflow-x:auto;"><table class="tabela-simples"><thead><tr><th>Profissional / Serviço</th><th>Quando</th><th>Status</th><th></th></tr></thead><tbody>${linhas.join('')}</tbody></table></div>`
+    : `<div class="vazio"><span class="emoji-vazio">📅</span><h3>Nenhum agendamento por aqui</h3><p>Explore os serviços disponíveis e marque seu primeiro horário.</p><a href="#/c/inicio" class="btn btn-primario" style="margin-top:16px;">Explorar serviços</a></div>`}
+  `, '/c/agendamentos');
+}
+
+async function viewClienteHistorico(){
+  appEl().innerHTML = layoutCliente(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/c/historico');
+  const [todos, meusFeedbacks] = await Promise.all([
+    listarOnde('agendamentos','idCliente', estado.user.uid),
+    listarOnde('feedbacks','idCliente', estado.user.uid),
+  ]);
+  const jaAvaliados = new Set(meusFeedbacks.map(f=>f.idAgendamento));
+  const hist = todos.filter(a=>['Concluído','Cancelado'].includes(a.status)).sort((a,b)=>(b.data+b.horario).localeCompare(a.data+a.horario));
+  const linhas = await Promise.all(hist.map(async a=>{
+    const [servico, prof] = await Promise.all([buscarDoc('servicos', a.idServico), buscarUsuarioCache(a.idProfissional)]);
+    const podeAvaliar = a.status === 'Concluído' && !jaAvaliados.has(a.id);
+    return `<tr>
+      <td><b>${esc(prof?.nome||'—')}</b><br><small style="color:var(--texto-suave);">${esc(servico?.nome||'')}</small></td>
+      <td>${formatDataBR(a.data)}<br><small>${a.horario}</small></td>
+      <td><span class="selo selo-${a.status==='Concluído'?'concluido':'cancelado'}">${a.status}</span></td>
+      <td>${podeAvaliar ? `<button class="btn btn-sm btn-secundario" data-action="abrir-feedback" data-id="${a.id}" data-profissional="${a.idProfissional}">Avaliar</button>` : (a.status==='Concluído' ? `<small style="color:var(--sucesso);">Avaliado ✓</small>` : '')}</td>
+    </tr>`;
+  }));
+  appEl().innerHTML = layoutCliente(`
+    ${cabecalhoPagina('Histórico', 'Atendimentos concluídos e cancelados')}
+    ${hist.length ? `<div class="cartao" style="padding:0;overflow-x:auto;"><table class="tabela-simples"><thead><tr><th>Profissional / Serviço</th><th>Quando</th><th>Status</th><th></th></tr></thead><tbody>${linhas.join('')}</tbody></table></div>`
+    : `<div class="vazio"><span class="emoji-vazio">🕘</span><h3>Seu histórico está vazio</h3><p>Assim que um agendamento for concluído ou cancelado, ele aparece aqui.</p></div>`}
+  `, '/c/historico');
+}
+
+async function viewClientePerfil(){
+  const p = estado.perfil;
+  appEl().innerHTML = layoutCliente(`
+    ${cabecalhoPagina('Meu perfil', 'Seus dados')}
+    <div class="grade-2">
+      <div class="cartao">
+        <div style="text-align:center;margin-bottom:18px;">
+          ${p.foto?`<img src="${esc(p.foto)}" style="width:90px;height:90px;border-radius:50%;object-fit:cover;">`:`<div class="avatar" style="width:90px;height:90px;font-size:28px;margin:0 auto;">${iniciais(p.nome)}</div>`}
+          <div style="margin-top:10px;"><label class="btn btn-sm btn-secundario" style="cursor:pointer;">Trocar foto<input type="file" id="input-foto" accept="image/*" style="display:none;"></label></div>
+        </div>
+        <form data-form="perfil-cliente">
+          <div class="campo"><label>Nome</label><input name="nome" required value="${esc(p.nome||'')}"></div>
+          <div class="campo"><label>Telefone</label><input name="telefone" value="${esc(p.telefone||'')}"></div>
+          <div class="campo"><label>E-mail</label><input value="${esc(p.email||'')}" disabled></div>
+          <button class="btn btn-primario btn-bloco" type="submit">Salvar alterações</button>
+        </form>
+      </div>
+      <div class="cartao">
+        <h3 style="margin-bottom:10px;">Segurança</h3>
+        <p style="font-size:13px;color:var(--texto-suave);margin-bottom:14px;">Enviaremos um link para trocar sua senha por e-mail.</p>
+        <button class="btn btn-secundario btn-bloco" data-action="enviar-reset-senha">Redefinir senha</button>
+      </div>
+    </div>
+  `, '/c/perfil');
+  $('#input-foto').addEventListener('change', async (e)=>{
+    const arq = e.target.files[0]; if (!arq) return;
+    toast('Enviando foto...');
+    try{
+      const url = await redimensionarImagemParaBase64(arq);
+      await updateDoc(refDoc('usuarios', estado.user.uid), { foto: url });
+      estado.perfil.foto = url; cacheUsuarios.delete(estado.user.uid);
+      toast('Foto atualizada!', 'sucesso');
+      viewClientePerfil();
+    }catch(err){
+      console.error(err);
+      toast('Não foi possível enviar a foto agora. Tente novamente mais tarde.', 'erro');
+    }
+  });
+}
+
+async function viewMensagens(papel, outroUidParam){
+  const meuUid = estado.user.uid;
+  const layout = papel === 'cliente' ? layoutCliente : layoutAdmin;
+  const rotaBase = papel === 'cliente' ? '/c/mensagens' : '/a/mensagens';
+
+  appEl().innerHTML = layout(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, rotaBase);
+
+  let conversaAtualId = null;
+  if (outroUidParam) conversaAtualId = await garantirConversa(meuUid, outroUidParam, papel);
+
+  appEl().innerHTML = layout(`
+    ${cabecalhoPagina('Comunicação', 'Mensagens')}
+    <div class="tela-mensagens">
+      <div class="lista-conversas ${conversaAtualId?'':'mostrar'}" id="lista-conversas">
+        <div class="busca-conversas"><input placeholder="Buscar conversa..." id="busca-conversas"></div>
+        <div id="itens-conversas"></div>
+      </div>
+      <div class="painel-chat ${conversaAtualId?'mostrar':''}" id="painel-chat"><div class="sem-chat"><span style="font-size:34px;">💬</span><p>Selecione uma conversa</p></div></div>
+    </div>
+  `, rotaBase);
+
+  const q = query(col('conversas'), where('participantes','array-contains', meuUid));
+  const unsub = onSnapshot(q, (snap)=>{
+    const lista = snap.docs.map(d=>({id:d.id, ...d.data()}))
+      .sort((a,b)=>(b.ultimaMensagemEm?.toMillis?.()||0) - (a.ultimaMensagemEm?.toMillis?.()||0));
+    const itens = $('#itens-conversas');
+    if (!itens) return;
+    itens.innerHTML = lista.length ? lista.map(c=>{
+      const souCliente = c.idCliente === meuUid;
+      const nomeOutro = souCliente ? c.nomeProfissional : c.nomeCliente;
+      const fotoOutro = souCliente ? c.fotoProfissional : c.fotoCliente;
+      const outroUid = souCliente ? c.idProfissional : c.idCliente;
+      const naoLido = !!c.naoLidoPara?.[meuUid];
+      return `<div class="item-conversa ${c.id===conversaAtualId?'ativa':''}" data-action="abrir-chat" data-conversa="${c.id}" data-outro="${outroUid}" data-buscavel="${esc(nomeOutro)}">
+        ${fotoOutro?`<img src="${esc(fotoOutro)}" class="avatar">`:`<div class="avatar">${iniciais(nomeOutro)}</div>`}
+        <div class="info">
+          <div class="linha1"><span>${esc(nomeOutro||'—')}</span><span class="hora">${c.ultimaMensagemEm?horaCurta(c.ultimaMensagemEm):''}</span></div>
+          <div class="prev">${esc(c.ultimaMensagem || 'Nova conversa')}</div>
+        </div>
+        ${naoLido?'<span class="pill-nao-lida">novo</span>':''}
+      </div>`;
+    }).join('') : `<div class="vazio" style="padding:30px 16px;"><p>Nenhuma conversa ainda.</p></div>`;
+    ligarBuscaSimples('#busca-conversas');
+  });
+  estado.assinaturas.push(unsub);
+
+  estado.abrirChatFn = (conversaId, outroUid) => abrirChat(conversaId, outroUid, papel);
+  if (conversaAtualId) abrirChat(conversaAtualId, outroUidParam, papel);
+}
+
+async function garantirConversa(meuUid, outroUid, papel){
+  const clienteUid = papel === 'cliente' ? meuUid : outroUid;
+  const profissionalUid = papel === 'cliente' ? outroUid : meuUid;
+  const id = [clienteUid, profissionalUid].sort().join('_');
+  const existente = await getDoc(refDoc('conversas', id));
+  if (existente.exists()) return id;
+  const [cli, prof] = await Promise.all([buscarUsuarioCache(clienteUid), buscarUsuarioCache(profissionalUid)]);
+  await setDoc(refDoc('conversas', id), {
+    participantes: [clienteUid, profissionalUid],
+    idCliente: clienteUid, idProfissional: profissionalUid,
+    nomeCliente: cli?.nome || 'Cliente', nomeProfissional: prof?.nome || 'Profissional',
+    fotoCliente: cli?.foto || null, fotoProfissional: prof?.foto || null,
+    ultimaMensagem: '', ultimaMensagemEm: serverTimestamp(),
+    naoLidoPara: {},
+  });
+  return id;
+}
+
+async function abrirChat(conversaId, outroUid, papel){
+  const meuUid = estado.user.uid;
+  const outro = await buscarUsuarioCache(outroUid);
+  const painel = $('#painel-chat');
+  if (!painel) return;
+  painel.classList.add('mostrar');
+  $('#lista-conversas')?.classList.remove('mostrar');
+  painel.innerHTML = `
+    <div class="chat-cabecalho">
+      <button class="icone-btn" id="btn-voltar-conversas" style="display:none;">←</button>
+      ${outro?.foto?`<img src="${esc(outro.foto)}" class="avatar">`:`<div class="avatar">${iniciais(outro?.nome)}</div>`}
+      <div><b>${esc(outro?.nome||'—')}</b></div>
+    </div>
+    <div class="chat-corpo" id="chat-corpo"></div>
+    <form class="chat-rodape" data-form="enviar-mensagem" data-conversa="${conversaId}" data-outro="${outroUid}">
+      <input name="texto" placeholder="Escreva uma mensagem..." autocomplete="off" required>
+      <button class="btn btn-primario" type="submit">Enviar</button>
+    </form>`;
+
+  updateDoc(refDoc('conversas', conversaId), { [`naoLidoPara.${meuUid}`]: false }).catch(()=>{});
+
+  const qMsgs = query(collection(db, 'conversas', conversaId, 'mensagens'), orderBy('criadoEm','asc'));
+  const unsub = onSnapshot(qMsgs, (snap)=>{
+    const corpo = $('#chat-corpo'); if (!corpo) return;
+    corpo.innerHTML = snap.docs.map(d=>{
+      const m = d.data();
+      return `<div class="bolha ${m.remetente===meuUid?'bolha-enviada':'bolha-recebida'}">${esc(m.texto)}</div>`;
+    }).join('') || `<p style="text-align:center;color:var(--texto-suave);font-size:13px;margin-top:20px;">Diga oi 👋</p>`;
+    corpo.scrollTop = corpo.scrollHeight;
+  });
+  estado.assinaturas.push(unsub);
+}
+
+async function viewClienteFidelidade(){
+  appEl().innerHTML = layoutCliente(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/c/fidelidade');
+  const meusAgendamentos = await listarOnde('agendamentos','idCliente', estado.user.uid);
+  const idsProf = [...new Set(meusAgendamentos.map(a=>a.idProfissional))];
+  const pontos = estado.perfil.pontosFidelidade || 0;
+
+  const cartoesProf = await Promise.all(idsProf.map(async uid=>{
+    const [prof, config] = await Promise.all([buscarUsuarioCache(uid), buscarDoc('fidelidadeConfig', uid)]);
+    if (!config) return '';
+    const niveis = config.niveis;
+    const nivel = nivelAtual(pontos, niveis);
+    const idx = niveis.findIndex(n=>n.nome===nivel.nome);
+    const prox = niveis[idx+1];
+    const progresso = prox ? Math.max(0, Math.min(100, Math.round(((pontos-nivel.pontosMin)/(prox.pontosMin-nivel.pontosMin))*100))) : 100;
+    return `<div class="cartao">
+      <h3>${esc(prof?.nome||'Profissional')}</h3>
+      <p style="font-size:13px;color:var(--texto-suave);margin-bottom:12px;">Programa de fidelidade</p>
+      <div class="nivel-linha destaque"><div><span class="nivel-emoji">🏅</span><b>${esc(nivel.nome)}</b></div><span class="chip">${esc(nivel.beneficio)}</span></div>
+      ${prox ? `<div class="progresso-fundo"><div class="progresso-barra" style="width:${progresso}%;"></div></div><p style="font-size:12px;color:var(--texto-suave);">${pontos} / ${prox.pontosMin} pontos para virar ${esc(prox.nome)}</p>` : `<p style="font-size:12px;color:var(--texto-suave);margin-top:8px;">Você atingiu o nível máximo! 🎉</p>`}
+    </div>`;
+  }));
+  const cartoesFiltrados = cartoesProf.filter(Boolean);
+
+  appEl().innerHTML = layoutCliente(`
+    ${cabecalhoPagina('Fidelidade', 'Seus pontos e benefícios')}
+    <div class="cartao" style="text-align:center;background:var(--gradiente);color:#fff;margin-bottom:20px;border:none;">
+      <p style="opacity:.9;font-size:13px;">Seus pontos totais</p>
+      <p style="font-size:38px;font-weight:800;">${pontos}</p>
+    </div>
+    <div class="grade-2">${cartoesFiltrados.join('') || `<div class="vazio" style="grid-column:1/-1;"><span class="emoji-vazio">🎁</span><h3>Ainda sem programa de fidelidade</h3><p>Assim que você agendar com um profissional, o programa de fidelidade dele aparece aqui.</p></div>`}</div>
+  `, '/c/fidelidade');
+}
+
+/* =====================================================================
+   11) TELAS DO ADMIN (PROFISSIONAL)
+===================================================================== */
+async function viewAdminInicio(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/inicio');
+  const uid = estado.user.uid;
+  const [agendamentos, feedbacks] = await Promise.all([
+    listarOnde('agendamentos','idProfissional', uid),
+    listarOnde('feedbacks','idProfissional', uid),
+  ]);
+  const hoje = hojeISO();
+  const hojeAg = agendamentos.filter(a=>a.data===hoje && a.status!=='Cancelado');
+  const pendentes = agendamentos.filter(a=>a.status==='Pendente');
+  const mesAtual = hoje.slice(0,7);
+  const concluidosMes = agendamentos.filter(a=>a.status==='Concluído' && a.data.startsWith(mesAtual));
+  let faturamento = 0;
+  for (const a of concluidosMes){
+    const s = await buscarDoc('servicos', a.idServico);
+    faturamento += Number(s?.preco || 0);
+  }
+  const mediaAvaliacao = feedbacks.length ? (feedbacks.reduce((s,f)=>s+f.nota,0)/feedbacks.length).toFixed(1) : '—';
+
+  const proximos = agendamentos.filter(a=>['Pendente','Confirmado'].includes(a.status) && a.data>=hoje)
+    .sort((a,b)=>(a.data+a.horario).localeCompare(b.data+b.horario)).slice(0,6);
+  const linhasProximos = await Promise.all(proximos.map(async a=>{
+    const [cli, serv] = await Promise.all([buscarUsuarioCache(a.idCliente), buscarDoc('servicos', a.idServico)]);
+    return `<tr><td class="pessoa-cel">${cli?.foto?`<img src="${esc(cli.foto)}" class="avatar" style="width:30px;height:30px;">`:`<div class="avatar" style="width:30px;height:30px;font-size:11px;">${iniciais(cli?.nome)}</div>`}${esc(cli?.nome||'—')}</td><td>${esc(serv?.nome||'')}</td><td>${formatDataBR(a.data)} · ${a.horario}</td><td><span class="selo selo-${a.status==='Pendente'?'pendente':'confirmado'}">${a.status}</span></td></tr>`;
+  }));
+
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Início', 'Visão geral')}
+    <div class="grade-cards" style="margin-bottom:26px;">
+      <div class="stat-cartao"><div class="stat-icone" style="background:var(--rosa-claro);">📅</div><div><div class="stat-valor">${hojeAg.length}</div><div class="stat-label">Agendamentos hoje</div></div></div>
+      <div class="stat-cartao"><div class="stat-icone" style="background:var(--alerta-fundo);">⏳</div><div><div class="stat-valor">${pendentes.length}</div><div class="stat-label">Pendentes de confirmação</div></div></div>
+      <div class="stat-cartao"><div class="stat-icone" style="background:var(--sucesso-fundo);">💰</div><div><div class="stat-valor">${formatBRL(faturamento)}</div><div class="stat-label">Faturamento do mês</div></div></div>
+      <div class="stat-cartao"><div class="stat-icone" style="background:#eee7fb;">⭐</div><div><div class="stat-valor">${mediaAvaliacao}</div><div class="stat-label">Avaliação média</div></div></div>
+    </div>
+    <div class="cartao" style="padding:0;overflow-x:auto;">
+      <div style="padding:18px 20px;font-weight:700;">Próximos agendamentos</div>
+      ${linhasProximos.length ? `<table class="tabela-simples"><thead><tr><th>Cliente</th><th>Serviço</th><th>Quando</th><th>Status</th></tr></thead><tbody>${linhasProximos.join('')}</tbody></table>` : `<div class="vazio">Nenhum agendamento futuro.</div>`}
+    </div>
+  `, '/a/inicio');
+}
+
+async function viewAdminAgenda(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/agenda');
+  const uid = estado.user.uid;
+  const agendamentos = (await listarOnde('agendamentos','idProfissional', uid)).filter(a=>['Pendente','Confirmado'].includes(a.status));
+  const porData = {};
+  agendamentos.forEach(a=>{ (porData[a.data] = porData[a.data] || []).push(a); });
+  const datas = Object.keys(porData).sort();
+
+  const blocos = await Promise.all(datas.map(async data=>{
+    const itens = porData[data].sort((a,b)=>a.horario.localeCompare(b.horario));
+    const linhas = await Promise.all(itens.map(async a=>{
+      const [cli, serv] = await Promise.all([buscarUsuarioCache(a.idCliente), buscarDoc('servicos', a.idServico)]);
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5eaf0;">
+        <span class="chip">${a.horario}</span>
+        ${cli?.foto?`<img src="${esc(cli.foto)}" class="avatar" style="width:32px;height:32px;">`:`<div class="avatar" style="width:32px;height:32px;font-size:12px;">${iniciais(cli?.nome)}</div>`}
+        <div style="flex:1;"><b>${esc(cli?.nome||'—')}</b> <span style="color:var(--texto-suave);font-size:12.5px;">— ${esc(serv?.nome||'')}</span></div>
+        <span class="selo selo-${a.status==='Pendente'?'pendente':'confirmado'}">${a.status}</span>
+      </div>`;
+    }));
+    return `<div class="cartao" style="margin-bottom:16px;"><h3 style="margin-bottom:6px;">${formatDataBR(data)} <span style="font-weight:400;color:var(--texto-suave);font-size:13px;">(${DIAS_SEMANA_LABEL[diaSemanaDe(data)]})</span></h3>${linhas.join('')}</div>`;
+  }));
+
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Agenda', 'Próximos dias')}
+    ${blocos.length ? blocos.join('') : `<div class="vazio"><span class="emoji-vazio">📅</span><h3>Sua agenda está livre</h3><p>Novos agendamentos de clientes vão aparecer aqui.</p></div>`}
+  `, '/a/agenda');
+}
+
+async function viewAdminAgendamentos(filtro){
+  filtro = filtro || estado.filtroAgendamentos || 'Pendente';
+  estado.filtroAgendamentos = filtro;
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/agendamentos');
+  const uid = estado.user.uid;
+  const todos = await listarOnde('agendamentos','idProfissional', uid);
+  const ativos = todos.filter(a=>['Pendente','Confirmado'].includes(a.status));
+  const lista = (filtro==='Todos' ? ativos : ativos.filter(a=>a.status===filtro)).sort((a,b)=>(a.data+a.horario).localeCompare(b.data+b.horario));
+
+  const linhas = await Promise.all(lista.map(async a=>{
+    const [cli, serv] = await Promise.all([buscarUsuarioCache(a.idCliente), buscarDoc('servicos', a.idServico)]);
+    return `<tr data-buscavel="${esc(cli?.nome)} ${esc(serv?.nome)}">
+      <td class="pessoa-cel">${cli?.foto?`<img src="${esc(cli.foto)}" class="avatar">`:`<div class="avatar">${iniciais(cli?.nome)}</div>`}<div><b>${esc(cli?.nome||'—')}</b><br><small style="color:var(--texto-suave);">${esc(serv?.nome||'')}</small></div></td>
+      <td>${formatDataBR(a.data)}<br><small>${a.horario}</small></td>
+      <td><span class="selo selo-${a.status==='Pendente'?'pendente':'confirmado'}">${a.status}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a href="#/a/mensagens/${a.idCliente}" class="icone-btn" title="Mensagem" style="width:32px;height:32px;">💬</a>
+        ${a.status==='Pendente' ? `<button class="btn btn-sm btn-secundario" data-action="mudar-status-agendamento" data-id="${a.id}" data-status="Confirmado">Confirmar</button>` : ''}
+        <button class="btn btn-sm btn-primario" data-action="concluir-agendamento" data-id="${a.id}">Concluir</button>
+        <button class="btn btn-sm btn-perigo" data-action="mudar-status-agendamento" data-id="${a.id}" data-status="Cancelado">Cancelar</button>
+      </td>
+    </tr>`;
+  }));
+
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Agendamentos', 'Gerencie as solicitações')}
+    <div class="abas">
+      <button class="${filtro==='Pendente'?'ativa':''}" data-action="filtrar-agendamentos" data-filtro="Pendente">Pendentes</button>
+      <button class="${filtro==='Confirmado'?'ativa':''}" data-action="filtrar-agendamentos" data-filtro="Confirmado">Confirmados</button>
+      <button class="${filtro==='Todos'?'ativa':''}" data-action="filtrar-agendamentos" data-filtro="Todos">Todos</button>
+    </div>
+    ${lista.length ? `<div class="cartao" style="padding:0;overflow-x:auto;"><table class="tabela-simples"><thead><tr><th>Cliente</th><th>Quando</th><th>Status</th><th>Ações</th></tr></thead><tbody>${linhas.join('')}</tbody></table></div>`
+    : `<div class="vazio"><span class="emoji-vazio">🗓️</span><h3>Nada por aqui</h3><p>Quando um cliente agendar, vai aparecer nesta lista.</p></div>`}
+  `, '/a/agendamentos');
+  ligarBuscaSimples('#busca-global');
+}
+async function viewAdminServicos(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/servicos');
+  const uid = estado.user.uid;
+  const [servicos, categorias] = await Promise.all([listarOnde('servicos','idProfissional', uid), listarTudo('categorias')]);
+  estado.categorias = categorias;
+  const mapaCat = new Map(categorias.map(c=>[c.id,c.nome]));
+
+  const cartoes = servicos.map(s=>{
+    const imgOk = s.imagem && /^https?:\/\//.test(s.imagem);
+    return `<div class="cartao-servico" data-buscavel="${esc(s.nome)}">
+      <div class="capa-servico" ${imgOk?`style="background-image:url('${esc(s.imagem)}');background-size:cover;background-position:center;"`:''}>${imgOk?'':(esc(s.imagem)||'💅')}</div>
+      <div class="corpo-servico">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <h3>${esc(s.nome)}</h3>
+          <span class="chip" style="opacity:${s.ativo?1:.5};">${s.ativo?'Ativo':'Inativo'}</span>
+        </div>
+        <div class="prof">${esc(mapaCat.get(s.idCategoria)||'Sem categoria')}</div>
+        <div class="desc">${esc(s.descricao||'')}</div>
+        <div class="linha-preco"><span class="preco">${formatBRL(s.preco)}</span><span class="duracao-pill">${s.duracao} min</span></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-secundario" data-action="abrir-servico-form" data-id="${s.id}">Editar</button>
+          <button class="btn btn-sm ${s.ativo?'btn-secundario':'btn-primario'}" data-action="alternar-servico-ativo" data-id="${s.id}" data-ativo="${s.ativo}">${s.ativo?'Desativar':'Ativar'}</button>
+          <button class="btn btn-sm btn-perigo" data-action="excluir-servico" data-id="${s.id}">Excluir</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Serviços', 'O que você oferece', `<button class="btn btn-primario" data-action="abrir-servico-form">+ Novo serviço</button>`)}
+    <div class="grade-cards">${cartoes || `<div class="vazio" style="grid-column:1/-1;"><span class="emoji-vazio">💅</span><h3>Nenhum serviço cadastrado</h3><p>Cadastre seu primeiro serviço para começar a receber agendamentos.</p></div>`}</div>
+  `, '/a/servicos');
+  ligarBuscaSimples('#busca-global');
+}
+
+async function viewAdminDisponibilidade(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/disponibilidade');
+  const uid = estado.user.uid;
+  const lista = await listarOnde('disponibilidade','idProfissional', uid);
+  const blocos = DIAS_SEMANA.map(dia=>{
+    const doDia = lista.filter(d=>d.diaSemana===dia);
+    return `<div class="cartao" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;${doDia.length?'margin-bottom:10px;':''}">
+        <h3>${DIAS_SEMANA_LABEL[dia]}</h3>
+        <button class="btn btn-sm btn-secundario" data-action="abrir-disponibilidade-form" data-dia="${dia}">+ Horário</button>
+      </div>
+      ${doDia.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #f5eaf0;">
+        <span>${d.horarioInicio} às ${d.horarioFim} ${d.ativo?'':'<small style="color:var(--texto-suave);">(inativo)</small>'}</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-secundario" data-action="alternar-disponibilidade-ativo" data-id="${d.id}" data-ativo="${d.ativo}">${d.ativo?'Desativar':'Ativar'}</button>
+          <button class="btn btn-sm btn-perigo" data-action="excluir-disponibilidade" data-id="${d.id}">Excluir</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+  appEl().innerHTML = layoutAdmin(`${cabecalhoPagina('Disponibilidade', 'Seus horários de atendimento por dia da semana')}${blocos}`, '/a/disponibilidade');
+}
+
+async function viewAdminHistorico(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/historico');
+  const uid = estado.user.uid;
+  const todos = await listarOnde('agendamentos','idProfissional', uid);
+  const hist = todos.filter(a=>['Concluído','Cancelado'].includes(a.status)).sort((a,b)=>(b.data+b.horario).localeCompare(a.data+a.horario));
+  const linhas = await Promise.all(hist.map(async a=>{
+    const [cli, serv] = await Promise.all([buscarUsuarioCache(a.idCliente), buscarDoc('servicos', a.idServico)]);
+    return `<tr data-buscavel="${esc(cli?.nome)} ${esc(serv?.nome)}">
+      <td class="pessoa-cel">${cli?.foto?`<img src="${esc(cli.foto)}" class="avatar">`:`<div class="avatar">${iniciais(cli?.nome)}</div>`}${esc(cli?.nome||'—')}</td>
+      <td>${esc(serv?.nome||'')}</td>
+      <td>${formatDataBR(a.data)} · ${a.horario}</td>
+      <td><span class="selo selo-${a.status==='Concluído'?'concluido':'cancelado'}">${a.status}</span></td>
+    </tr>`;
+  }));
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Histórico', 'Atendimentos finalizados')}
+    ${hist.length ? `<div class="cartao" style="padding:0;overflow-x:auto;"><table class="tabela-simples"><thead><tr><th>Cliente</th><th>Serviço</th><th>Quando</th><th>Status</th></tr></thead><tbody>${linhas.join('')}</tbody></table></div>` : `<div class="vazio"><span class="emoji-vazio">🕘</span><h3>Ainda não há histórico</h3></div>`}
+  `, '/a/historico');
+  ligarBuscaSimples('#busca-global');
+}
+
+async function viewAdminFeedbacks(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/feedbacks');
+  const uid = estado.user.uid;
+  const feedbacks = (await listarOnde('feedbacks','idProfissional', uid)).sort((a,b)=>(b.dataCriacao?.toMillis?.()||0)-(a.dataCriacao?.toMillis?.()||0));
+  const media = feedbacks.length ? (feedbacks.reduce((s,f)=>s+f.nota,0)/feedbacks.length).toFixed(1) : '—';
+  const cartoes = await Promise.all(feedbacks.map(async f=>{
+    const [cli, ag] = await Promise.all([buscarUsuarioCache(f.idCliente), buscarDoc('agendamentos', f.idAgendamento)]);
+    const serv = ag ? await buscarDoc('servicos', ag.idServico) : null;
+    return `<div class="cartao" style="margin-bottom:12px;" data-buscavel="${esc(cli?.nome)}">
+      <div style="display:flex;justify-content:space-between;">
+        <div class="pessoa-cel">${cli?.foto?`<img src="${esc(cli.foto)}" class="avatar">`:`<div class="avatar">${iniciais(cli?.nome)}</div>`}<div><b>${esc(cli?.nome||'—')}</b><br><small style="color:var(--texto-suave);">${esc(serv?.nome||'')} · ${formatDataHoraBR(f.dataCriacao)}</small></div></div>
+        <span class="estrelas">${'★'.repeat(f.nota)}${'☆'.repeat(5-f.nota)}</span>
+      </div>
+      ${f.comentario ? `<p style="margin-top:10px;font-size:13.5px;">"${esc(f.comentario)}"</p>` : ''}
+    </div>`;
+  }));
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Feedbacks', `Avaliação média: ${media} ⭐`)}
+    ${cartoes.length ? cartoes.join('') : `<div class="vazio"><span class="emoji-vazio">⭐</span><h3>Nenhuma avaliação ainda</h3><p>Assim que um cliente avaliar um atendimento concluído, aparece aqui.</p></div>`}
+  `, '/a/feedbacks');
+  ligarBuscaSimples('#busca-global');
+}
+
+async function viewAdminPerfil(){
+  const p = estado.perfil;
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Perfil', 'Seus dados profissionais')}
+    <div class="grade-2">
+      <div class="cartao">
+        <div style="text-align:center;margin-bottom:18px;">
+          ${p.foto?`<img src="${esc(p.foto)}" style="width:90px;height:90px;border-radius:50%;object-fit:cover;">`:`<div class="avatar" style="width:90px;height:90px;font-size:28px;margin:0 auto;">${iniciais(p.nome)}</div>`}
+          <div style="margin-top:10px;"><label class="btn btn-sm btn-secundario" style="cursor:pointer;">Trocar foto<input type="file" id="input-foto-admin" accept="image/*" style="display:none;"></label></div>
+        </div>
+        <form data-form="perfil-admin">
+          <div class="campo"><label>Nome</label><input name="nome" required value="${esc(p.nome||'')}"></div>
+          <div class="campo"><label>Especialidade</label><input name="especialidade" value="${esc(p.especialidade||'')}"></div>
+          <div class="campo"><label>Telefone</label><input name="telefone" value="${esc(p.telefone||'')}"></div>
+          <div class="campo"><label>E-mail</label><input value="${esc(p.email||'')}" disabled></div>
+          <button class="btn btn-primario btn-bloco" type="submit">Salvar alterações</button>
+        </form>
+      </div>
+      <div class="cartao">
+        <h3 style="margin-bottom:10px;">Segurança</h3>
+        <p style="font-size:13px;color:var(--texto-suave);margin-bottom:14px;">Enviaremos um link para trocar sua senha por e-mail.</p>
+        <button class="btn btn-secundario btn-bloco" data-action="enviar-reset-senha">Redefinir senha</button>
+      </div>
+    </div>
+  `, '/a/perfil');
+  $('#input-foto-admin').addEventListener('change', async (e)=>{
+    const arq = e.target.files[0]; if (!arq) return;
+    toast('Enviando foto...');
+    try{
+      const url = await redimensionarImagemParaBase64(arq);
+      await updateDoc(refDoc('usuarios', estado.user.uid), { foto: url });
+      estado.perfil.foto = url; cacheUsuarios.delete(estado.user.uid);
+      toast('Foto atualizada!', 'sucesso');
+      viewAdminPerfil();
+    }catch(err){
+      console.error(err);
+      toast('Não foi possível enviar a foto agora. Tente novamente mais tarde.', 'erro');
+    }
+  });
+}
+
+async function viewAdminCampanhas(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/campanhas');
+  const uid = estado.user.uid;
+  const campanhas = await listarOnde('campanhas','idProfissional', uid);
+  const cartoes = campanhas.map(c=>{
+    const taxa = c.enviadas ? Math.round((c.abertas/c.enviadas)*100) : 0;
+    return `<div class="cartao" data-buscavel="${esc(c.titulo)}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:10px;">
+        <h3>${esc(c.titulo)}</h3><span class="selo selo-${c.status==='ativa'?'ativa':(c.status==='agendada'?'agendada':'encerrada')}">${c.status}</span>
+      </div>
+      <p style="font-size:13px;color:var(--texto-suave);margin-bottom:14px;">${esc(c.descricao||'')}</p>
+      <div style="display:flex;gap:22px;margin-bottom:14px;">
+        <div><div style="font-size:11.5px;color:var(--texto-suave);">Enviadas</div><b>${c.enviadas||0}</b></div>
+        <div><div style="font-size:11.5px;color:var(--texto-suave);">Abertas</div><b>${c.abertas||0}</b></div>
+        <div><div style="font-size:11.5px;color:var(--texto-suave);">Taxa</div><b>${taxa}%</b></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-secundario" data-action="somar-metrica-campanha" data-id="${c.id}" data-campo="enviadas">+10 enviadas</button>
+        <button class="btn btn-sm btn-secundario" data-action="somar-metrica-campanha" data-id="${c.id}" data-campo="abertas">+1 aberta</button>
+        <button class="btn btn-sm btn-secundario" data-action="abrir-campanha-form" data-id="${c.id}">Editar</button>
+        <button class="btn btn-sm btn-perigo" data-action="excluir-campanha" data-id="${c.id}">Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Campanhas e Promoções', 'Comunicação', `<button class="btn btn-primario" data-action="abrir-campanha-form">+ Nova campanha</button>`)}
+    <div class="grade-2">${cartoes || `<div class="vazio" style="grid-column:1/-1;"><span class="emoji-vazio">📣</span><h3>Nenhuma campanha ainda</h3><p>Crie promoções e lembretes para engajar seus clientes.</p></div>`}</div>
+  `, '/a/campanhas');
+  ligarBuscaSimples('#busca-global');
+}
+
+async function viewAdminFidelidade(){
+  appEl().innerHTML = layoutAdmin(`<div class="vazio"><div class="spinner" style="margin:0 auto;"></div></div>`, '/a/fidelidade');
+  const uid = estado.user.uid;
+  const [config, agendamentos] = await Promise.all([buscarDoc('fidelidadeConfig', uid), listarOnde('agendamentos','idProfissional', uid)]);
+  const idsClientes = [...new Set(agendamentos.map(a=>a.idCliente))];
+  const clientes = (await Promise.all(idsClientes.map(id=>buscarUsuarioCache(id))))
+    .filter(Boolean).sort((a,b)=>(b.pontosFidelidade||0)-(a.pontosFidelidade||0)).slice(0,10);
+
+  const linhasNiveis = (config?.niveis||[]).map(n=>`
+    <div class="nivel-linha">
+      <div><span class="nivel-emoji">🏅</span><b>${esc(n.nome)}</b><br><small style="color:var(--texto-suave);">${n.pontosMin}–${n.pontosMax} pontos</small></div>
+      <span class="chip">${esc(n.beneficio)}</span>
+    </div>`).join('');
+  const linhasRanking = clientes.map((c,i)=>`
+    <div class="ranking-linha">
+      <span class="ranking-num">${i+1}</span>
+      ${c.foto?`<img src="${esc(c.foto)}" class="avatar" style="width:30px;height:30px;">`:`<div class="avatar" style="width:30px;height:30px;font-size:11px;">${iniciais(c.nome)}</div>`}
+      <span style="flex:1;">${esc(c.nome)}</span>
+      <span class="chip">${c.pontosFidelidade||0} pts</span>
+    </div>`).join('');
+
+  appEl().innerHTML = layoutAdmin(`
+    ${cabecalhoPagina('Programa de Fidelidade', 'Extras', `<button class="btn btn-primario" data-action="abrir-fidelidade-config">Configurar</button>`)}
+    <div class="grade-cards" style="margin-bottom:24px;">
+      <div class="stat-cartao"><div class="stat-icone" style="background:var(--rosa-claro);">🏅</div><div><div class="stat-valor">${clientes.length}</div><div class="stat-label">Clientes no programa</div></div></div>
+      <div class="stat-cartao"><div class="stat-icone" style="background:#eee7fb;">🎯</div><div><div class="stat-valor">${config?.pontosPorReal ?? 1}x</div><div class="stat-label">Ponto por real gasto</div></div></div>
+    </div>
+    <div class="grade-2">
+      <div class="cartao"><h3 style="margin-bottom:14px;">Níveis do programa</h3>${linhasNiveis}</div>
+      <div class="cartao"><h3 style="margin-bottom:14px;">Ranking de clientes</h3>${linhasRanking || '<p style="font-size:13px;color:var(--texto-suave);">Ainda sem clientes pontuando.</p>'}</div>
+    </div>
+  `, '/a/fidelidade');
+}
+
+/* =====================================================================
+   12) AÇÕES (data-action) E FORMULÁRIOS (data-form)
+===================================================================== */
+const acoes = {
+  'sair': async ()=>{ await signOut(auth); },
+  'toggle-sidebar': ()=>{ estado.sidebarAberta = !estado.sidebarAberta; $('#sidebar-admin')?.classList.toggle('aberta', estado.sidebarAberta); },
+  'enviar-reset-senha': async ()=>{ await sendPasswordResetEmail(auth, estado.user.email); toast('Enviamos um link de redefinição para seu e-mail.', 'sucesso'); },
+
+  'escolher-horario': (ds)=>{ estado.agendarSelecao = ds.hora; const data = $('#input-data-agendar')?.value || hojeISO(); estado.redesenharAgendar?.(data); },
+  'confirmar-agendamento-novo': async (ds)=>{
+    if (!estado.agendarSelecao){ toast('Escolha um horário disponível.', 'erro'); return; }
+    const data = $('#input-data-agendar').value;
+    const servico = await buscarDoc('servicos', ds.servico);
+    const obs = $('#obs-agendar')?.value.trim() || null;
+    await addDoc(col('agendamentos'), {
+      idCliente: estado.user.uid, idProfissional: servico.idProfissional, idServico: servico.id,
+      data, horario: estado.agendarSelecao, status: 'Pendente', observacoes: obs, dataCriacao: serverTimestamp(),
+    });
+    toast('Agendamento solicitado! Aguarde a confirmação.', 'sucesso');
+    estado.agendarSelecao = null;
+    location.hash = '#/c/agendamentos';
+  },
+  'cliente-cancelar-agendamento': async (ds)=>{
+    const ok = await confirmarAcao('Cancelar este agendamento?');
+    if (!ok) return;
+    await updateDoc(refDoc('agendamentos', ds.id), { status: 'Cancelado' });
+    toast('Agendamento cancelado.', 'sucesso');
+    viewClienteAgendamentos();
+  },
+  'abrir-feedback': (ds)=>{
+    let nota = 5;
+    const estrelasHtml = ()=> Array.from({length:5},(_,i)=>`<span data-estrela="${i+1}" style="cursor:pointer;font-size:28px;">${i<nota?'★':'☆'}</span>`).join('');
+    const ligarEstrelas = ()=> $$('#estrelas-feedback span').forEach(s=>{ s.onclick = ()=>{ nota = Number(s.dataset.estrela); $('#estrelas-feedback').innerHTML = estrelasHtml(); ligarEstrelas(); }; });
+    abrirModal(`
+      <h2>Avaliar atendimento</h2>
+      <div id="estrelas-feedback" style="margin-bottom:16px;">${estrelasHtml()}</div>
+      <div class="campo"><label>Comentário (opcional)</label><textarea id="comentario-feedback" rows="3" placeholder="Como foi sua experiência?"></textarea></div>
+      <div class="linha-botoes"><button class="btn btn-secundario" id="btn-cancelar-fb">Cancelar</button><button class="btn btn-primario" id="btn-enviar-fb">Enviar avaliação</button></div>
+    `);
+    ligarEstrelas();
+    $('#btn-cancelar-fb').onclick = fecharModal;
+    $('#btn-enviar-fb').onclick = async ()=>{
+      await addDoc(col('feedbacks'), { idAgendamento: ds.id, idCliente: estado.user.uid, idProfissional: ds.profissional, nota, comentario: $('#comentario-feedback').value.trim()||null, dataCriacao: serverTimestamp() });
+      fecharModal(); toast('Obrigado pela avaliação!', 'sucesso'); viewClienteHistorico();
+    };
+  },
+
+  'abrir-chat': (ds)=>{ estado.abrirChatFn?.(ds.conversa, ds.outro); },
+
+  'filtrar-agendamentos': (ds)=> viewAdminAgendamentos(ds.filtro),
+  'mudar-status-agendamento': async (ds)=>{
+    await updateDoc(refDoc('agendamentos', ds.id), { status: ds.status });
+    toast(ds.status==='Cancelado' ? 'Agendamento cancelado.' : 'Agendamento confirmado!', ds.status==='Cancelado'?'erro':'sucesso');
+    viewAdminAgendamentos();
+  },
+  'concluir-agendamento': async (ds)=>{
+    const ok = await confirmarAcao('Marcar este agendamento como concluído? Isso libera os pontos de fidelidade para o cliente.');
+    if (!ok) return;
+    const ag = await buscarDoc('agendamentos', ds.id);
+    await updateDoc(refDoc('agendamentos', ds.id), { status: 'Concluído' });
+    const [servico, config] = await Promise.all([buscarDoc('servicos', ag.idServico), buscarDoc('fidelidadeConfig', estado.user.uid)]);
+    const pontosGanhos = Math.round(Number(servico?.preco||0) * Number(config?.pontosPorReal||1));
+    if (pontosGanhos > 0){
+      await updateDoc(refDoc('usuarios', ag.idCliente), { pontosFidelidade: increment(pontosGanhos) });
+      cacheUsuarios.delete(ag.idCliente);
+      await addDoc(col('fidelidadeHistorico'), { idCliente: ag.idCliente, idProfissional: estado.user.uid, idAgendamento: ds.id, pontos: pontosGanhos, dataCriacao: serverTimestamp() });
+    }
+    toast(`Agendamento concluído${pontosGanhos ? ` · +${pontosGanhos} pontos para o cliente` : ''}!`, 'sucesso');
+    viewAdminAgendamentos();
+  },
+
+  'abrir-servico-form': async (ds)=>{
+    const editando = !!ds.id;
+    const servico = editando ? await buscarDoc('servicos', ds.id) : null;
+    if (estado.categorias.length === 0) estado.categorias = await listarTudo('categorias');
+    const opcoesCat = estado.categorias.map(c=>`<option value="${c.id}" ${servico?.idCategoria===c.id?'selected':''}>${esc(c.nome)}</option>`).join('');
+    abrirModal(`
+      <h2>${editando?'Editar':'Novo'} serviço</h2>
+      <form data-form="salvar-servico" data-id="${ds.id||''}">
+        <div class="campo"><label>Nome</label><input name="nome" required value="${esc(servico?.nome||'')}"></div>
+        <div class="campo"><label>Categoria</label><select name="idCategoria">${opcoesCat}</select></div>
+        <div class="campo"><label>Ou nova categoria</label><input name="novaCategoria" placeholder="Deixe em branco se já escolheu acima"></div>
+        <div class="campo"><label>Descrição</label><textarea name="descricao" rows="2">${esc(servico?.descricao||'')}</textarea></div>
+        <div class="grade-2">
+          <div class="campo"><label>Preço (R$)</label><input type="number" step="0.01" min="0" name="preco" required value="${servico?.preco??''}"></div>
+          <div class="campo"><label>Duração (min)</label><input type="number" min="5" step="5" name="duracao" required value="${servico?.duracao??''}"></div>
+        </div>
+        <div class="campo"><label>Emoji ou URL de imagem (opcional)</label><input name="imagem" value="${esc(servico?.imagem||'')}" placeholder="✨ ou https://..."></div>
+        <div class="linha-botoes"><button type="button" class="btn btn-secundario" id="btn-fechar-servico">Cancelar</button><button type="submit" class="btn btn-primario">Salvar</button></div>
+      </form>`);
+    $('#btn-fechar-servico').onclick = fecharModal;
+  },
+  'alternar-servico-ativo': async (ds)=>{ await updateDoc(refDoc('servicos', ds.id), { ativo: ds.ativo !== 'true' }); viewAdminServicos(); },
+  'excluir-servico': async (ds)=>{ const ok = await confirmarAcao('Excluir este serviço? Essa ação não pode ser desfeita.'); if (!ok) return; await deleteDoc(refDoc('servicos', ds.id)); toast('Serviço excluído.', 'sucesso'); viewAdminServicos(); },
+
+  'abrir-disponibilidade-form': (ds)=>{
+    abrirModal(`
+      <h2>Novo horário — ${DIAS_SEMANA_LABEL[ds.dia]}</h2>
+      <form data-form="salvar-disponibilidade" data-dia="${ds.dia}">
+        <div class="grade-2">
+          <div class="campo"><label>Início</label><input type="time" name="horarioInicio" required></div>
+          <div class="campo"><label>Fim</label><input type="time" name="horarioFim" required></div>
+        </div>
+        <div class="linha-botoes"><button type="button" class="btn btn-secundario" id="btn-fechar-disp">Cancelar</button><button type="submit" class="btn btn-primario">Salvar</button></div>
+      </form>`);
+    $('#btn-fechar-disp').onclick = fecharModal;
+  },
+  'alternar-disponibilidade-ativo': async (ds)=>{ await updateDoc(refDoc('disponibilidade', ds.id), { ativo: ds.ativo !== 'true' }); viewAdminDisponibilidade(); },
+  'excluir-disponibilidade': async (ds)=>{ const ok = await confirmarAcao('Excluir este horário?'); if (!ok) return; await deleteDoc(refDoc('disponibilidade', ds.id)); toast('Horário excluído.', 'sucesso'); viewAdminDisponibilidade(); },
+
+  'abrir-campanha-form': async (ds)=>{
+    const editando = !!ds.id;
+    const c = editando ? await buscarDoc('campanhas', ds.id) : null;
+    abrirModal(`
+      <h2>${editando?'Editar':'Nova'} campanha</h2>
+      <form data-form="salvar-campanha" data-id="${ds.id||''}">
+        <div class="campo"><label>Título</label><input name="titulo" required value="${esc(c?.titulo||'')}"></div>
+        <div class="campo"><label>Descrição</label><textarea name="descricao" rows="2">${esc(c?.descricao||'')}</textarea></div>
+        <div class="campo"><label>Status</label>
+          <select name="status">
+            <option value="agendada" ${c?.status==='agendada'?'selected':''}>Agendada</option>
+            <option value="ativa" ${!c||c?.status==='ativa'?'selected':''}>Ativa</option>
+            <option value="encerrada" ${c?.status==='encerrada'?'selected':''}>Encerrada</option>
+          </select>
+        </div>
+        <div class="linha-botoes"><button type="button" class="btn btn-secundario" id="btn-fechar-camp">Cancelar</button><button type="submit" class="btn btn-primario">Salvar</button></div>
+      </form>`);
+    $('#btn-fechar-camp').onclick = fecharModal;
+  },
+  'somar-metrica-campanha': async (ds)=>{ await updateDoc(refDoc('campanhas', ds.id), { [ds.campo]: increment(ds.campo==='enviadas'?10:1) }); viewAdminCampanhas(); },
+  'excluir-campanha': async (ds)=>{ const ok = await confirmarAcao('Excluir esta campanha?'); if (!ok) return; await deleteDoc(refDoc('campanhas', ds.id)); toast('Campanha excluída.', 'sucesso'); viewAdminCampanhas(); },
+
+  'abrir-fidelidade-config': async ()=>{
+    const config = await buscarDoc('fidelidadeConfig', estado.user.uid);
+    abrirModal(`
+      <h2>Configurar fidelidade</h2>
+      <form data-form="salvar-fidelidade">
+        <div class="campo"><label>Pontos por real gasto</label><input type="number" step="0.1" min="0" name="pontosPorReal" value="${config?.pontosPorReal??1}"></div>
+        ${(config?.niveis||[]).map((n,i)=>`
+          <div class="campo" style="border-top:1px solid var(--borda);padding-top:12px;">
+            <label>${esc(n.nome)} (${n.pontosMin}–${n.pontosMax} pts) — benefício</label>
+            <input name="beneficio-${i}" value="${esc(n.beneficio)}">
+          </div>`).join('')}
+        <div class="linha-botoes"><button type="button" class="btn btn-secundario" id="btn-fechar-fid">Cancelar</button><button type="submit" class="btn btn-primario">Salvar</button></div>
+      </form>`);
+    $('#btn-fechar-fid').onclick = fecharModal;
+  },
+};
+
+// Escreve uma mensagem de erro/sucesso num container de formulário (#erro-login
+// etc). Se a tela já mudou nesse meio-tempo (ex.: login bem-sucedido disparou
+// onAuthStateChanged e trocou a rota antes deste código rodar) o elemento pode
+// não existir mais no DOM — nesse caso mostra um toast em vez de travar com
+// "Cannot set properties of null".
+function mostrarMensagemForm(seletor, mensagem, classe){
+  const el = $(seletor);
+  if (el){ el.innerHTML = mensagem ? `<div class="${classe}">${mensagem}</div>` : ''; return; }
+  if (mensagem) toast(mensagem.replace(/<[^>]*>/g,''), classe === 'sucesso-form' ? 'sucesso' : 'erro');
+}
+
+const formularios = {
+  'login': async (form)=>{
+    const tipo = form.dataset.tipo;
+    const fd = new FormData(form);
+    mostrarMensagemForm('#erro-login', '', 'erro-form');
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    try{
+      const cred = await signInWithEmailAndPassword(auth, fd.get('email').trim(), fd.get('senha'));
+      const perfil = await buscarDoc('usuarios', cred.user.uid);
+      if (!perfil || perfil.tipo !== tipo){
+        await signOut(auth);
+        mostrarMensagemForm('#erro-login', `Essa conta não é de ${tipo==='cliente'?'cliente':'profissional'}. Entre pela tela correta.`, 'erro-form');
+        btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    }catch(err){
+      mostrarMensagemForm('#erro-login', esc(erroFirebase(err)), 'erro-form');
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  },
+  'cadastro': async (form)=>{
+    const tipo = form.dataset.tipo;
+    const fd = new FormData(form);
+    mostrarMensagemForm('#erro-cadastro', '', 'erro-form');
+    if (fd.get('senha') !== fd.get('confirmarSenha')){
+      mostrarMensagemForm('#erro-cadastro', 'As senhas não coincidem.', 'erro-form');
+      return;
+    }
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Criando conta...';
+    try{
+      await fazerCadastro({
+        tipo, nome: fd.get('nome').trim(), email: fd.get('email').trim(), senha: fd.get('senha'),
+        telefone: fd.get('telefone')?.trim(), especialidade: fd.get('especialidade')?.trim(),
+      });
+      toast('Conta criada com sucesso!', 'sucesso');
+    }catch(err){
+      mostrarMensagemForm('#erro-cadastro', esc(erroFirebase(err)), 'erro-form');
+      btn.disabled = false; btn.textContent = 'Criar conta';
+    }
+  },
+  'recuperar-senha': async (form)=>{
+    const fd = new FormData(form);
+    try{
+      await sendPasswordResetEmail(auth, fd.get('email').trim());
+      mostrarMensagemForm('#erro-recuperar', 'Link enviado! Confira seu e-mail.', 'sucesso-form');
+    }catch(err){
+      mostrarMensagemForm('#erro-recuperar', esc(erroFirebase(err)), 'erro-form');
+    }
+  },
+  'perfil-cliente': async (form)=>{
+    const fd = new FormData(form);
+    const dados = { nome: fd.get('nome').trim(), telefone: fd.get('telefone').trim()||null };
+    await updateDoc(refDoc('usuarios', estado.user.uid), dados);
+    Object.assign(estado.perfil, dados);
+    cacheUsuarios.delete(estado.user.uid);
+    toast('Perfil atualizado!', 'sucesso');
+    aplicarRota();
+  },
+  'perfil-admin': async (form)=>{
+    const fd = new FormData(form);
+    const dados = { nome: fd.get('nome').trim(), especialidade: fd.get('especialidade').trim()||'Não informada', telefone: fd.get('telefone').trim()||null };
+    await updateDoc(refDoc('usuarios', estado.user.uid), dados);
+    Object.assign(estado.perfil, dados);
+    cacheUsuarios.delete(estado.user.uid);
+    toast('Perfil atualizado!', 'sucesso');
+    aplicarRota();
+  },
+  'salvar-servico': async (form)=>{
+    const fd = new FormData(form);
+    let idCategoria = fd.get('idCategoria');
+    const novaCategoria = fd.get('novaCategoria')?.trim();
+    if (novaCategoria){
+      const ref = await addDoc(col('categorias'), { nome: novaCategoria });
+      idCategoria = ref.id;
+      estado.categorias.push({ id: ref.id, nome: novaCategoria });
+    }
+    const dados = {
+      idProfissional: estado.user.uid, idCategoria,
+      nome: fd.get('nome').trim(), descricao: fd.get('descricao').trim()||null,
+      preco: Number(fd.get('preco')), duracao: Number(fd.get('duracao')),
+      imagem: fd.get('imagem').trim()||'', ativo: true,
+    };
+    if (form.dataset.id) await updateDoc(refDoc('servicos', form.dataset.id), dados);
+    else await addDoc(col('servicos'), dados);
+    fecharModal(); toast('Serviço salvo!', 'sucesso'); viewAdminServicos();
+  },
+  'salvar-disponibilidade': async (form)=>{
+    const fd = new FormData(form);
+    const ini = fd.get('horarioInicio'), fim = fd.get('horarioFim');
+    if (horaParaMin(fim) <= horaParaMin(ini)){ toast('O horário de fim precisa ser depois do início.', 'erro'); return; }
+    await addDoc(col('disponibilidade'), { idProfissional: estado.user.uid, diaSemana: form.dataset.dia, horarioInicio: ini, horarioFim: fim, ativo: true });
+    fecharModal(); toast('Horário adicionado!', 'sucesso'); viewAdminDisponibilidade();
+  },
+  'enviar-mensagem': async (form)=>{
+    const conversaId = form.dataset.conversa, outroUid = form.dataset.outro;
+    const texto = form.texto.value.trim();
+    if (!texto) return;
+    form.texto.value = '';
+    const meuUid = estado.user.uid;
+    await addDoc(collection(db,'conversas',conversaId,'mensagens'), { remetente: meuUid, texto, criadoEm: serverTimestamp() });
+    await updateDoc(refDoc('conversas', conversaId), {
+      ultimaMensagem: texto, ultimaMensagemEm: serverTimestamp(),
+      [`naoLidoPara.${outroUid}`]: true, [`naoLidoPara.${meuUid}`]: false,
+    });
+  },
+  'salvar-campanha': async (form)=>{
+    const fd = new FormData(form);
+    const dados = { idProfissional: estado.user.uid, titulo: fd.get('titulo').trim(), descricao: fd.get('descricao').trim()||null, status: fd.get('status') };
+    if (form.dataset.id) await updateDoc(refDoc('campanhas', form.dataset.id), dados);
+    else await addDoc(col('campanhas'), { ...dados, enviadas: 0, abertas: 0, criadoEm: serverTimestamp() });
+    fecharModal(); toast('Campanha salva!', 'sucesso'); viewAdminCampanhas();
+  },
+  'salvar-fidelidade': async (form)=>{
+    const fd = new FormData(form);
+    const config = await buscarDoc('fidelidadeConfig', estado.user.uid);
+    const niveis = config.niveis.map((n,i)=>({ ...n, beneficio: fd.get(`beneficio-${i}`) }));
+    await updateDoc(refDoc('fidelidadeConfig', estado.user.uid), { pontosPorReal: Number(fd.get('pontosPorReal')), niveis });
+    fecharModal(); toast('Configuração salva!', 'sucesso'); viewAdminFidelidade();
+  },
+};
+
+/* =====================================================================
+   13) BOOTSTRAP — delegação de eventos global
+===================================================================== */
+document.addEventListener('click', async (e)=>{
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const fn = acoes[el.dataset.action];
+  if (!fn) return;
+  e.preventDefault();
+  try{ await fn(el.dataset, el, e); }
+  catch(err){ console.error(err); toast(erroFirebase(err), 'erro'); }
+});
+document.addEventListener('submit', async (e)=>{
+  const form = e.target.closest('form[data-form]');
+  if (!form) return;
+  e.preventDefault();
+  const fn = formularios[form.dataset.form];
+  if (!fn) return;
+  try{ await fn(form); }
+  catch(err){ console.error(err); toast(erroFirebase(err), 'erro'); }
+});
+
+</script>
+</body>
+</html>

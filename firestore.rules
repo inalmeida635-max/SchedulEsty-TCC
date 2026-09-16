@@ -1,0 +1,136 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() {
+      return request.auth != null;
+    }
+
+    function dono(uid) {
+      return logado() && request.auth.uid == uid;
+    }
+
+    // ---------- USUÁRIOS (clientes + profissionais, unificados) ----------
+    // "Cliente avulso" (semConta:true) é um cadastro de cliente feito manualmente
+    // pelo profissional (cliente de balcão sem login) — não tem dono via Auth,
+    // então a permissão é liberada para quem criou (criadoPor).
+    match /usuarios/{uid} {
+      allow read: if logado();
+      allow create: if dono(uid) ||
+        (logado() && request.resource.data.semConta == true && request.resource.data.criadoPor == request.auth.uid);
+      // não deixa a pessoa trocar o próprio "tipo" depois de criado
+      allow update: if (dono(uid) && request.resource.data.tipo == resource.data.tipo) ||
+        (logado() && resource.data.semConta == true && resource.data.criadoPor == request.auth.uid) ||
+        // Uma profissional credita pontos de fidelidade na conta do cliente ao
+        // concluir um atendimento (concluirAgendamento). Isso é uma escrita numa
+        // conta que não é dela, então é liberado só para esse campo específico
+        // (não dá pra usar essa brecha pra mudar nome/e-mail/tipo de ninguém).
+        (logado() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pontosFidelidade']));
+      allow delete: if false;
+    }
+
+    // ---------- CATEGORIAS ----------
+    match /categorias/{id} {
+      allow read: if true;
+      allow create: if logado();
+      allow update, delete: if false;
+    }
+
+    // ---------- SERVIÇOS ----------
+    match /servicos/{id} {
+      allow read: if true;
+      allow create: if logado() && request.resource.data.idProfissional == request.auth.uid;
+      allow update, delete: if logado() && resource.data.idProfissional == request.auth.uid;
+    }
+
+    // ---------- DISPONIBILIDADE ----------
+    match /disponibilidade/{id} {
+      allow read: if true;
+      allow create: if logado() && request.resource.data.idProfissional == request.auth.uid;
+      allow update, delete: if logado() && resource.data.idProfissional == request.auth.uid;
+    }
+
+    // ---------- AGENDAMENTOS ----------
+    match /agendamentos/{id} {
+      allow read: if logado() &&
+        (resource.data.idCliente == request.auth.uid || resource.data.idProfissional == request.auth.uid);
+      // O agendamento pode ser criado pelo próprio cliente (fluxo "Agendar" do
+      // portal) OU pela profissional em nome de um cliente (fluxo "Novo
+      // agendamento" da tela Agendamentos, inclusive para clientes avulsos).
+      allow create: if logado() &&
+        (request.resource.data.idCliente == request.auth.uid || request.resource.data.idProfissional == request.auth.uid);
+      allow update: if logado() &&
+        (resource.data.idCliente == request.auth.uid || resource.data.idProfissional == request.auth.uid);
+      allow delete: if false;
+    }
+
+    // ---------- FEEDBACKS ----------
+    match /feedbacks/{id} {
+      allow read: if logado() &&
+        (resource.data.idCliente == request.auth.uid || resource.data.idProfissional == request.auth.uid);
+      allow create: if logado() && request.resource.data.idCliente == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---------- FAVORITOS ----------
+    match /favoritos/{id} {
+      allow read, delete: if logado() && resource.data.idCliente == request.auth.uid;
+      allow create: if logado() && request.resource.data.idCliente == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ---------- MENSAGENS (conversas cliente <-> profissional) ----------
+    match /conversas/{conversaId} {
+      allow read: if logado() && request.auth.uid in resource.data.participantes;
+      allow create: if logado() && request.auth.uid in request.resource.data.participantes;
+      allow update: if logado() && request.auth.uid in resource.data.participantes;
+
+      match /mensagens/{msgId} {
+        allow read, create: if logado() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversas/$(conversaId)).data.participantes;
+      }
+    }
+
+    // ---------- CAMPANHAS ----------
+    match /campanhas/{id} {
+      allow read, update, delete: if logado() && resource.data.idProfissional == request.auth.uid;
+      allow create: if logado() && request.resource.data.idProfissional == request.auth.uid;
+    }
+
+    // ---------- PROGRAMA DE FIDELIDADE ----------
+    match /fidelidadeConfig/{profissionalUid} {
+      allow read: if true;
+      allow write: if dono(profissionalUid);
+    }
+
+    match /fidelidadeHistorico/{id} {
+      allow read: if logado() &&
+        (resource.data.idCliente == request.auth.uid || resource.data.idProfissional == request.auth.uid);
+      allow create: if logado() && request.resource.data.idProfissional == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---------- PRONTUÁRIO (anamnese/restrições/LGPD por cliente+profissional) ----------
+    // Cada profissional mantém seu próprio prontuário sobre um cliente — o cliente
+    // continua dono do próprio cadastro em /usuarios; isso aqui é só a ficha clínica
+    // que o profissional preenche sobre o atendimento dela.
+    match /prontuarios/{id} {
+      allow read: if logado() &&
+        (resource.data.idCliente == request.auth.uid || resource.data.idProfissional == request.auth.uid);
+      allow create: if logado() && request.resource.data.idProfissional == request.auth.uid;
+      allow update: if logado() && resource.data.idProfissional == request.auth.uid;
+      allow delete: if false;
+
+      match /evolucao/{evId} {
+        allow read: if logado() && (
+          get(/databases/$(database)/documents/prontuarios/$(id)).data.idProfissional == request.auth.uid ||
+          get(/databases/$(database)/documents/prontuarios/$(id)).data.idCliente == request.auth.uid
+        );
+        allow create: if logado() &&
+          get(/databases/$(database)/documents/prontuarios/$(id)).data.idProfissional == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+  }
+}

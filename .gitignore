@@ -1,0 +1,19 @@
+# Dependências instaladas pelo npm
+node_modules/
+
+# Chave privada da conta de serviço do Firebase (NUNCA subir isso pro git)
+service-account.json
+
+# Dados antigos usados só na migração (contém dados reais de clientes)
+dados-antigos.json
+
+# Resultados/relatórios do Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Logs e arquivos de sistema
+npm-debug.log*
+.DS_Store
+Thumbs.db

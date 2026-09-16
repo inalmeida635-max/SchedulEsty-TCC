@@ -1,0 +1,18 @@
+{
+  "name": "schedulesty",
+  "version": "1.0.0",
+  "description": "SchedulEsty — sistema de agendamentos (Firebase). Inclui script de migração de dados e testes automatizados end-to-end com Playwright.",
+  "private": true,
+  "scripts": {
+    "migrar": "node migrar.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

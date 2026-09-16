@@ -1,0 +1,42 @@
+name: Testes automatizados (SchedulEsty)
+
+# Roda sozinho toda vez que alguém dá push ou abre um Pull Request para a
+# branch main — é essa a parte que faz os testes "rodarem sozinhos".
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar navegadores do Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Rodar os testes
+        env:
+          TEST_CLIENTE_EMAIL: ${{ secrets.TEST_CLIENTE_EMAIL }}
+          TEST_CLIENTE_SENHA: ${{ secrets.TEST_CLIENTE_SENHA }}
+        run: npx playwright test
+
+      - name: Guardar relatório do Playwright (se algum teste falhar)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 15
