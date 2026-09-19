@@ -4,8 +4,8 @@
 - Ana Lívia Carvalho Antunes
 - Eduarda Beatriz Pereira da Silva
 - Evelyn Nunes Carvalho
-- Ingrid Almeida de Oliveira
 - Felipi Braulio Sobottka
+- Ingrid Almeida de Oliveira
 
 ## Turma: 3ºMTEC-N Técnico em Desenvolvimento de Sistemas
 
@@ -19,7 +19,7 @@ O SchedulEsty é um projeto de Trabalho de Conclusão de Curso (TCC) desenvolvid
 HTML5, CSS3, JavaScript, PHP, MariaDB, XAMPP e Visual Studio Code (VS Code).
 
 ## Status atual do projeto:
-No momento, a equipe está na fase de programação, desenvolvendo as funcionalidades e a integração com o banco de dados para dar continuidade à implementação do projeto. 
+No momento, a equipe está na fase de aprimoramento do projeto, além de estar nas etapas finais de finalização da documentação do projeto.
 
 ## Link Protótipo Alta Fidelidade:
 [schedulesty.html](https://github.com/user-attachments/files/32031521/schedulesty.html)
