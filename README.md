@@ -16,10 +16,10 @@ Pedro Ramires Amalfi da Silva Costa
 O SchedulEsty é um projeto de Trabalho de Conclusão de Curso (TCC) desenvolvido para modernizar e facilitar o agendamento de procedimentos em clínicas de estética. O projeto busca resolver a dificuldade enfrentada por muitas clínicas que ainda utilizam processos manuais ou dependem exclusivamente de ligações e mensagens para marcar atendimentos. Com o SchedulEsty, o processo de agendamento torna-se mais eficiente, proporcionando maior praticidade para os clientes e melhor organização para os estabelecimentos.
 
 ## Tecnologias utilizadas:
-HTML5, CSS3, JavaScript, PHP, MariaDB, XAMPP e Visual Studio Code (VS Code).
+HTML, CSS, JavaScript, Firebase Authentication, Cloud Firestore, Firebase Hosting, Playwright, GitHub Actions, Node.js e Visual Studio Code (VS Code).
 
 ## Status atual do projeto:
-No momento, a equipe está na fase de aprimoramento do projeto, além de estar nas etapas finais de finalização da documentação do projeto.
+O projeto Schedulesty encontra-se com todas as etapas concluídas, incluindo o planejamento, a documentação, a prototipagem, o desenvolvimento e os testes do sistema. Todas as funcionalidades previstas foram implementadas, e o projeto está finalizado, atendendo aos objetivos estabelecidos inicialmente. Dessa forma, seu status atual é de concluído, não havendo etapas pendentes.
 
 ## Link Protótipo Alta Fidelidade:
 [schedulesty.html](https://github.com/user-attachments/files/32031521/schedulesty.html)
